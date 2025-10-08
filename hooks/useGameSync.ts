@@ -52,42 +52,54 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
 
   useEffect(() => {
     if (mode === "offline" && gameDefinition) {
-      const initialObjects: Record<string, any> = {}
-      const initialPuzzles: Record<string, any> = {}
+      // FIX: Ne réinitialiser QUE si offlineStateRef n'existe pas encore
+      // Sinon, on perd toute la progression à chaque changement de rôle!
+      if (!offlineStateRef.current) {
+        const initialObjects: Record<string, any> = {}
+        const initialPuzzles: Record<string, any> = {}
 
-      gameDefinition.rooms.forEach((room: any) => {
-        room.objects.forEach((obj: any) => {
-          initialObjects[obj.id] = { ...obj }
+        gameDefinition.rooms.forEach((room: any) => {
+          room.objects.forEach((obj: any) => {
+            initialObjects[obj.id] = { ...obj }
+          })
+          room.puzzles.forEach((puzzle: any) => {
+            initialPuzzles[puzzle.id] = { success: false, currentStep: 0 }
+          })
         })
-        room.puzzles.forEach((puzzle: any) => {
-          initialPuzzles[puzzle.id] = { success: false, currentStep: 0 }
-        })
-      })
 
-      offlineStateRef.current = {
-        timerMs: gameDefinition.timer.durationMs,
-        score: gameDefinition.scoring.baseScore,
-        errors: 0,
-        hintsUsed: 0,
-        objects: initialObjects,
-        puzzles: initialPuzzles,
-        keys: [],
-        codeParts: {},
-        players: new Map(),
+        offlineStateRef.current = {
+          timerMs: gameDefinition.timer.durationMs,
+          score: gameDefinition.scoring.baseScore,
+          errors: 0,
+          hintsUsed: 0,
+          objects: initialObjects,
+          puzzles: initialPuzzles,
+          keys: [],
+          codeParts: {},
+          players: new Map(),
+        }
       }
 
       const startRoom = gameDefinition.rooms.find((r: any) => r.id === currentRoomId)
       const spawnX = startRoom?.spawn?.x || 2
       const spawnY = startRoom?.spawn?.y || 6
 
-      playersRef.current.set(userId, {
-        sessionId: userId,
-        displayName: displayName,
-        role: role || "Analyst",
-        x: spawnX,
-        y: spawnY,
-        facing: "S"
-      })
+      // FIX: Mettre à jour le joueur existant au lieu de le recréer
+      const existingPlayer = playersRef.current.get(userId)
+      if (existingPlayer) {
+        // Juste mettre à jour le rôle, garder position
+        existingPlayer.role = role || "Analyst"
+      } else {
+        // Créer nouveau joueur si n'existe pas
+        playersRef.current.set(userId, {
+          sessionId: userId,
+          displayName: displayName,
+          role: role || "Analyst",
+          x: spawnX,
+          y: spawnY,
+          facing: "S"
+        })
+      }
 
       const interval = setInterval(() => {
         if (offlineStateRef.current) {
@@ -226,13 +238,16 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
         if (!player) return
 
         const adjacencyRange = gameDefinition.ui.adjacencyRange || 2
-        if (!canInteract(player, obj, adjacencyRange, offlineStateRef.current, debugMode)) {
-          console.warn("[v0] Cannot interact: out of range, wrong role, or prerequisites not met")
+        if (!canInteract(player, obj, adjacencyRange, offlineStateRef.current, debugMode, gameDefinition)) {
+          console.warn("[v0] Cannot interact: out of range, wrong role, prerequisites not met, or already completed")
           console.log("[v0] Player:", player.x, player.y, "Object:", obj.x, obj.y, "Range:", adjacencyRange)
           return
         }
 
         const timestamp = Date.now()
+        
+        // Trouver la room actuelle (utilisée par plusieurs cases)
+        const currentRoom = gameDefinition.rooms.find((r: any) => r.id === currentRoomId)
 
         switch (obj.type) {
           case "switch":
@@ -246,8 +261,6 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
                 led.label = obj.state === "on" ? "ON" : "OFF"
               }
             }
-
-            const currentRoom = gameDefinition.rooms.find((r: any) => r.id === currentRoomId)
             if (currentRoom) {
               currentRoom.puzzles.forEach((puzzle: Puzzle) => {
                 if (puzzle.type === "multiSwitch" && puzzle.ids?.includes(objectId)) {
@@ -292,6 +305,24 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
 
           case "panel":
             console.log("[v0] Panel opened:", objectId)
+            
+            // Mettre à jour les puzzles infoSplit où ce panel est la source
+            if (currentRoom) {
+              currentRoom.puzzles.forEach((puzzle: Puzzle) => {
+                if (puzzle.type === "infoSplit" && puzzle.sourcePanel === objectId) {
+                  // Si targetConsole === sourcePanel, c'est juste une lecture
+                  if (puzzle.targetConsole === objectId) {
+                    offlineStateRef.current = updatePuzzleState(
+                      puzzle,
+                      { type: "panelRead", objectId, timestamp },
+                      offlineStateRef.current,
+                      playersRef.current,
+                      true
+                    )
+                  }
+                }
+              })
+            }
             break
 
           case "console":

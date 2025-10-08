@@ -16,7 +16,7 @@ Escape game multijoueur coopératif sur la qualité de l'air intérieur, dévelo
 - 🎨 **Rendu isométrique** style pixel-art
 - 💬 **Chat d'équipe** en temps réel
 - 🎵 **Mini-jeux** interactifs (Simon, Wiring, CO2 Graph)
-- 🔒 **Système de rôles** (Analyst, Tech, Operator, Logistician)
+- 🔒 **Système de rôles** (Analyst, Tech, Operator)
 
 ## 📋 Prérequis
 
@@ -53,10 +53,11 @@ npm run dev
 - Ou "Mode Multijoueur" pour jouer avec d'autres
 
 ### 2. **Choisir un rôle**
-- **📊 Analyst**: Lit les panneaux, analyse les données
-- **🔧 Tech**: Active les switches et mécanismes
-- **⌨️ Operator**: Entre les codes dans les consoles
-- **📦 Logistician**: Transporte objets (salles avancées)
+- **📊 Analyst**: Lit les panneaux, analyse les données CO₂, trouve les codes
+- **🔧 Tech**: Active les switches, synchronise les valves, gère les mini-jeux mécaniques
+- **⌨️ Operator**: Entre les codes dans les consoles, active les systèmes de ventilation
+
+💡 **En mode solo**: Changez de rôle avec le Debug Panel (touche `+` puis `R`)
 
 ### 3. **Contrôles**
 - **Déplacement**: Clic souris OU touches WASD/ZQSD

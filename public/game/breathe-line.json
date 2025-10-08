@@ -14,7 +14,7 @@
       "error": "buzz_01"
     }
   },
-  "roles": ["Analyst", "Tech", "Operator", "Logistician"],
+  "roles": ["Analyst", "Tech", "Operator"],
   "ui": {
     "adjacencyRange": 3,
     "controls": {
@@ -49,7 +49,7 @@
           "id": "swA",
           "type": "switch",
           "name": "🔧 Switch Alpha",
-          "x": 3,
+          "x": 2,
           "y": 3,
           "state": "off",
           "roleLock": "Tech",
@@ -70,7 +70,7 @@
           "id": "swB",
           "type": "switch",
           "name": "🔧 Switch Beta",
-          "x": 11,
+          "x": 12,
           "y": 3,
           "state": "off",
           "roleLock": "Tech",
@@ -91,8 +91,8 @@
           "id": "ledA",
           "type": "led",
           "name": "💡 LED Alpha",
-          "x": 3,
-          "y": 2,
+          "x": 2,
+          "y": 1,
           "state": "red",
           "label": "OFF",
           "bindsTo": "swA"
@@ -101,8 +101,8 @@
           "id": "ledB",
           "type": "led",
           "name": "💡 LED Beta",
-          "x": 11,
-          "y": 2,
+          "x": 12,
+          "y": 1,
           "state": "red",
           "label": "OFF",
           "bindsTo": "swB"
@@ -111,8 +111,8 @@
           "id": "panelData",
           "type": "panel",
           "name": "📊 Panneau de Données CO₂",
-          "x": 2,
-          "y": 7,
+          "x": 1,
+          "y": 6,
           "roleLock": "Analyst",
           "panel": {
             "title": "📊 DIAGNOSTIC CO₂ - 4 CAPTEURS",
@@ -133,8 +133,8 @@
           "id": "consoleR1",
           "type": "console",
           "name": "⌨️ Console d'Activation",
-          "x": 12,
-          "y": 7,
+          "x": 13,
+          "y": 6,
           "console": {
             "accept": "codeN",
             "validFormatRegex": "^[A-D][0-9]{1,2}$",
@@ -158,7 +158,7 @@
           "type": "panel",
           "name": "✅ Panneau de Confirmation",
           "x": 7,
-          "y": 2,
+          "y": 1,
           "roleLock": "Analyst",
           "requires": ["step3_switches"],
           "panel": {
@@ -180,8 +180,8 @@
           "id": "doorR1",
           "type": "door",
           "name": "🚪 Sortie vers Salle de Ventilation",
-          "x": 13,
-          "y": 5,
+          "x": 7,
+          "y": 9,
           "open": false,
           "lockedBy": ["R1_complete"]
         }
@@ -192,7 +192,7 @@
           "type": "infoSplit",
           "sourcePanel": "panelData",
           "targetConsole": "panelData",
-          "codeFormat": "NNNN",
+          "codeFormat": "LNN",
           "soloNote": true
         },
         {
@@ -200,7 +200,7 @@
           "type": "infoSplit",
           "sourcePanel": "panelData",
           "targetConsole": "consoleR1",
-          "codeFormat": "NNNN",
+          "codeFormat": "LNN",
           "soloNote": true,
           "requires": ["step1_readPanel"]
         },
@@ -220,7 +220,7 @@
           "type": "infoSplit",
           "sourcePanel": "confirmPanel",
           "targetConsole": "confirmPanel",
-          "codeFormat": "CONFIRM",
+          "codeFormat": "VALIDATED",
           "soloNote": true,
           "requires": ["step3_switches"]
         }
@@ -282,7 +282,8 @@
           "state": "closed",
           "roleLock": "Operator",
           "cooldownMs": 500,
-          "tooltip": "Valve A - Operator only",
+          "requires": ["step4_confirm"],
+          "tooltip": "Valve A - Operator only\n🔗 Requires: R1 completed",
           "miniGame": "timing"
         },
         {
@@ -294,7 +295,8 @@
           "state": "closed",
           "roleLock": "Operator",
           "cooldownMs": 500,
-          "tooltip": "Valve B - Operator only",
+          "requires": ["step4_confirm"],
+          "tooltip": "Valve B - Operator only\n🔗 Requires: R1 completed",
           "miniGame": "timing"
         },
         {
@@ -306,8 +308,37 @@
           "state": "closed",
           "roleLock": "Operator",
           "cooldownMs": 500,
-          "tooltip": "Valve C - Operator only",
-          "miniGame": "timing"
+          "requires": ["step4_confirm"],
+          "tooltip": "Valve C - Operator only\n🔗 Requires: R1 completed",
+          "miniGame": "timing",
+          "debriefing": {
+            "title": "🌬️ Système de Ventilation Activé!",
+            "explanation": "Félicitations! Vous avez activé le système de ventilation à 3 zones. Chaque valve contrôle une zone différente:\n\n• Valve A: Zone Laboratoire (air propre requis)\n• Valve B: Zone Habitation (confort thermique)\n• Valve C: Zone Technique (évacuation chaleur)\n\nL'activation simultanée assure un renouvellement d'air homogène. Dans les bâtiments modernes, on utilise la VMC (Ventilation Mécanique Contrôlée).",
+            "didYouKnow": "La VMC double flux peut récupérer jusqu'à 90% de la chaleur de l'air sortant pour préchauffer l'air entrant. Résultat: économie de 15-20% sur le chauffage! Les maisons passives utilisent ce principe pour consommer < 15 kWh/m²/an.",
+            "realWorld": "Les immeubles de bureaux modernes utilisent des systèmes BMS (Building Management System) qui ajustent automatiquement la ventilation selon le taux de CO₂, l'occupation et la température. Résultat: -30% de consommation énergétique vs ventilation constante.",
+            "unlocked": "Accès Filtration Room déverrouillé"
+          }
+        },
+        {
+          "id": "doorR2_back_to_R1",
+          "type": "door",
+          "name": "🚪 Retour Control Room",
+          "x": 6,
+          "y": 1,
+          "open": true,
+          "to": "R1",
+          "tooltip": "🚪 Retour vers Control Room\n✅ Toujours accessible"
+        },
+        {
+          "id": "doorR2_to_R3",
+          "type": "door",
+          "name": "🚪 Vers Filtration Room",
+          "x": 6,
+          "y": 7,
+          "open": false,
+          "lockedBy": ["multiValve_R2"],
+          "to": "R3",
+          "tooltip": "🚪 Porte vers Filtration Room\n🔒 Activez les 3 valves pour débloquer"
         }
       ],
       "puzzles": [
@@ -357,7 +388,7 @@
           "state": "off",
           "roleLock": "Tech",
           "cooldownMs": 300,
-          "tooltip": "HEPA Filter A - Tech only"
+          "tooltip": "HEPA Filter A - Tech only\n⚠️ Check sequence order first!"
         },
         {
           "id": "filterB",
@@ -368,7 +399,7 @@
           "state": "off",
           "roleLock": "Tech",
           "cooldownMs": 300,
-          "tooltip": "Carbon Filter B - Tech only"
+          "tooltip": "Carbon Filter B - Tech only\n⚠️ Check sequence order first!"
         },
         {
           "id": "filterC",
@@ -379,7 +410,14 @@
           "state": "off",
           "roleLock": "Tech",
           "cooldownMs": 300,
-          "tooltip": "UV Filter C - Tech only"
+          "tooltip": "UV Filter C - Tech only\n⚠️ Check sequence order first!",
+          "debriefing": {
+            "title": "🔬 Filtration Multi-Étages Activée!",
+            "explanation": "Parfait! Vous avez activé les 3 étages de filtration dans le bon ordre:\n\n1️⃣ HEPA (High-Efficiency Particulate Air)\n   → Capture 99.97% des particules ≥ 0.3 μm\n   → Poussières, pollens, bactéries, virus\n\n2️⃣ CARBON (Charbon actif)\n   → Absorbe COV (Composés Organiques Volatils)\n   → Odeurs, formaldéhyde, benzène\n\n3️⃣ UV-C (Lumière ultraviolette 254nm)\n   → Inactive virus et bactéries restants\n   → Stérilisation finale\n\nL'ORDRE est crucial: HEPA d'abord enlève les grosses particules qui satureraient le charbon actif.",
+            "didYouKnow": "Les filtres HEPA ont été inventés pendant le Projet Manhattan (1940s) pour capturer les particules radioactives! Aujourd'hui on les trouve dans les salles blanches (fabrication de puces), les hôpitaux (blocs opératoires), les avions (renouvellement air cabine) et les aspirateurs haut de gamme.",
+            "realWorld": "Dans un bloc opératoire, l'air passe par filtre HEPA H14 (99.995% particules) + surpression +15 Pa. Résultat: < 1 particule/m³ vs 35 millions/m³ dans l'air extérieur urbain! La NASA utilise des salles ISO 1 (< 10 particules/m³) pour assembler satellites.",
+            "unlocked": "Console Air Quality Monitor accessible"
+          }
         },
         {
           "id": "sequencePanel",
@@ -388,12 +426,13 @@
           "x": 3,
           "y": 6,
           "roleLock": "Analyst",
+          "requires": ["multiValve_R2"],
           "panel": {
-            "title": "Filter Activation Sequence",
-            "text": "CRITICAL: Filters must be activated in correct order:\n1. HEPA (Particulate removal)\n2. Carbon (VOC absorption)\n3. UV (Microbial sterilization)\n\nIncorrect sequence may damage equipment.",
+            "title": "🔬 SÉQUENCE ACTIVATION FILTRES",
+            "text": "⚠️ PROCÉDURE CRITIQUE - NE PAS SE TROMPER!\n\n📋 ORDRE D'ACTIVATION OBLIGATOIRE:\n\n1️⃣ Filtre A - HEPA (High-Efficiency Particulate Air)\n   → Capte particules ≥ 0.3 μm (poussière, pollens)\n   → DOIT être activé EN PREMIER\n\n2️⃣ Filtre C - CARBON (Charbon actif)\n   → Absorbe COV et gaz\n   → Protégé par HEPA contre saturation\n\n3️⃣ Filtre B - UV-C (Ultraviolet 254nm)\n   → Stérilisation finale\n   → Active EN DERNIER\n\n💡 POURQUOI CET ORDRE?\nHEPA enlève d'abord les grosses particules\n→ Empêche saturation prématurée du charbon\n→ UV stérilise l'air déjà filtré\n\n📝 CODE VALIDATION:\nInitiales dans l'ordre: A → C → B = ACB\n\n📡 TRANSMETTEZ ce code à l'Operator!",
             "code": "ACB"
           },
-          "tooltip": "Filter Sequence Panel - Analyst only"
+          "tooltip": "🔬 Séquence Filtres\n🔒 Accès: Analyst\n💡 Lisez l'ordre et transmettez le code!\n🔗 Prérequis: R2 complété"
         },
         {
           "id": "airQualityMonitor",
@@ -408,7 +447,15 @@
           },
           "roleLock": "Operator",
           "cooldownMs": 250,
-          "tooltip": "Air Quality Monitor - Operator only"
+          "requires": ["sequence_R3"],
+          "tooltip": "Air Quality Monitor - Operator only\n🔗 Requires: Filters activated in correct sequence",
+          "debriefing": {
+            "title": "✅ Qualité d'Air Restaurée!",
+            "explanation": "Excellent! Le système de surveillance qualité d'air est opérationnel. Il surveille en temps réel:\n\n📊 Indicateurs:\n• CO₂ (cible: < 1000 ppm)\n• PM2.5 particules fines (< 25 μg/m³)\n• COV totaux (< 300 μg/m³)\n• Humidité relative (40-60%)\n• Température (20-23°C)\n\nLorsqu'un seuil est dépassé, le système ajuste automatiquement ventilation et filtration. La station peut maintenir un air sain 24/7!",
+            "didYouKnow": "Dans une maison typique, l'air intérieur est 2 à 5 fois PLUS pollué que l'air extérieur! Sources: meubles (formaldéhyde), produits ménagers (COV), humidité (moisissures), cuisson (PM2.5). Solution simple: aérer 10 minutes matin + soir réduit les polluants de 70%!",
+            "realWorld": "Selon l'OMS, la pollution de l'air intérieur cause 3.8 millions de décès/an, surtout dans les pays en développement (cuisson au bois/charbon). Coût économique: 2% du PIB mondial. Technologies émergentes: capteurs IoT connectés, IA qui optimise ventilation, plantes dépolluantes (pothos, ficus).",
+            "unlocked": "Sortie Emergency Exit déverrouillée"
+          }
         },
         {
           "id": "doorR3",

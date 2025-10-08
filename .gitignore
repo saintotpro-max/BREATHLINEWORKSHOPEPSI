@@ -1,33 +1,69 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+# Dependencies
+node_modules/
+/.pnp
+.pnp.js
 
-# dependencies
-/node_modules
+# Testing
+/coverage
 
-# next.js
+# Next.js
 /.next/
 /out/
 
-# production
+# Production
 /build
 
-# debug
+# Misc
+.DS_Store
+*.pem
+
+# Debug
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-.pnpm-debug.log*
 
-# env files
-.env*
-env.local*
-*.env.local
+# Local env files (IMPORTANT: Ne pas commit les clés Firebase!)
+.env
+.env*.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# vercel
+# Vercel
 .vercel
 
-# typescript
+# TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
-# Documentation non essentielle
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Logs
+logs
+*.log
+
+# Firebase (si utilisé)
+.firebase/
+firebase-debug.log
+
+# Documentation temporaire (fichiers d'analyse - pas nécessaires pour le repo)
 *.md
 !README.md
+
+# Fichiers d'environnement locaux (NE PAS COMMIT!)
+env.local.*
+.env.local.firebase
+
+# Fichiers de workshop/notes
+workshop.md
+sujet.md
+idée.md

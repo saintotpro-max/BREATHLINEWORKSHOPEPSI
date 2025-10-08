@@ -39,8 +39,9 @@ import { useObjectives } from "@/hooks/use-objectives"
 import { useNotifications } from "@/hooks/use-notifications"
 import { useGameSounds } from "@/hooks/use-game-sounds"
 import { DebriefingManager } from "@/components/PedagogicalDebriefing"
-import { ProgressionBar } from "@/components/ProgressionBar"
+import { UnifiedJournal } from "@/components/UnifiedJournal"
 import { AmbientLight } from "@/components/VisualEffects"
+import { SyncTimer } from "@/components/SyncTimer"
 import { useCO2Simulation } from "@/hooks/use-co2-simulation"
 import { useDebriefingManager } from "@/hooks/use-debriefing-manager"
 
@@ -129,6 +130,8 @@ export default function Page() {
   const [journalOpen, setJournalOpen] = useState(false)
   const [notifiedPuzzles, setNotifiedPuzzles] = useState<Set<string>>(new Set())
   const [notifiedRooms, setNotifiedRooms] = useState<Set<string>>(new Set())
+  const [syncTimerActive, setSyncTimerActive] = useState(false)
+  const [firstSwitchTime, setFirstSwitchTime] = useState<number | null>(null)
 
   // NOUVEAU: Hook pour notifications (ne dépend pas de currentRoomId/snapshot)
   const { 
@@ -271,6 +274,33 @@ export default function Page() {
 
   const { debriefings, addDebriefing, dismissDebriefing } = useDebriefingManager()
 
+  // REFONTE: Surveillance synchronisation switches A & B (3 secondes)
+  useEffect(() => {
+    if (phase !== "playing" || currentRoomId !== "R1") return
+    
+    const swA = snapshot.objects["swA"]
+    const swB = snapshot.objects["swB"]
+    
+    // Si les deux switches sont ON, succès
+    if (swA?.state === "on" && swB?.state === "on") {
+      setSyncTimerActive(false)
+      setFirstSwitchTime(null)
+      return
+    }
+    
+    // Si un seul switch est ON, démarrer le timer
+    if ((swA?.state === "on" && swB?.state !== "on") || (swB?.state === "on" && swA?.state !== "on")) {
+      if (!syncTimerActive) {
+        setSyncTimerActive(true)
+        setFirstSwitchTime(Date.now())
+      }
+    } else {
+      // Si les deux sont OFF, réinitialiser
+      setSyncTimerActive(false)
+      setFirstSwitchTime(null)
+    }
+  }, [phase, currentRoomId, snapshot.objects, syncTimerActive])
+
   // NOUVEAU: Détecter quand un puzzle est résolu et notifier
   useEffect(() => {
     if (phase !== "playing" || !gameData) return
@@ -289,24 +319,70 @@ export default function Page() {
           
           // REFONTE: Ajouter débriefing pédagogique si disponible
           const room = gameData.rooms.find(r => r.puzzles?.some(p => p.id === puzzleId))
-          const obj = room?.objects?.find(o => {
-            // Chercher l'objet lié au puzzle
-            if (puzzleId.includes('readPanel') || puzzleId.includes('confirm')) {
-              return o.type === 'panel' && o.panel?.debriefing
-            }
-            if (puzzleId.includes('enterCode')) {
-              return o.type === 'console' && o.debriefing
-            }
-            if (puzzleId.includes('switches')) {
-              return o.type === 'switch' && o.debriefing
-            }
-            return false
-          })
+          const puzzleData = room?.puzzles?.find(p => p.id === puzzleId)
           
-          if (obj && (obj as any).debriefing) {
-            addDebriefing(puzzleId, (obj as any).debriefing)
-          } else if (obj && (obj as any).panel?.debriefing) {
-            addDebriefing(puzzleId, (obj as any).panel.debriefing)
+          // Trouver l'objet lié au puzzle selon son type
+          let obj: any = null
+          let debriefingToShow: any = null
+          
+          if (puzzleData) {
+            if (puzzleData.type === 'infoSplit') {
+              // Pour infoSplit: chercher sourcePanel ou targetConsole
+              const sourceId = (puzzleData as any).sourcePanel
+              const targetId = (puzzleData as any).targetConsole
+              
+              // Prioriser sourcePanel pour débriefing
+              obj = room?.objects?.find(o => o.id === sourceId)
+              if (!obj) obj = room?.objects?.find(o => o.id === targetId)
+              
+              // Chercher débriefing dans panel ou console
+              if (obj?.panel?.debriefing) debriefingToShow = obj.panel.debriefing
+              else if (obj?.debriefing) debriefingToShow = obj.debriefing
+              else if (obj?.console?.debriefing) debriefingToShow = obj.console.debriefing
+            }
+            else if (puzzleData.type === 'multiSwitch') {
+              // Pour multiSwitch: chercher les switches
+              const switchIds = (puzzleData as any).ids || []
+              // Prendre le débriefing du dernier switch (celui qui complète)
+              for (const switchId of switchIds.reverse()) {
+                obj = room?.objects?.find(o => o.id === switchId)
+                if (obj?.debriefing) {
+                  debriefingToShow = obj.debriefing
+                  break
+                }
+              }
+            }
+            else if (puzzleData.type === 'multiValve') {
+              // Pour multiValve: chercher les valves
+              const valveIds = (puzzleData as any).ids || []
+              // Prendre le débriefing de la dernière valve
+              for (const valveId of valveIds.reverse()) {
+                obj = room?.objects?.find(o => o.id === valveId)
+                if (obj?.debriefing) {
+                  debriefingToShow = obj.debriefing
+                  break
+                }
+              }
+            }
+            else if (puzzleData.type === 'sequence') {
+              // Pour sequence: chercher les filtres dans l'ordre
+              const filterIds = (puzzleData as any).order || []
+              // Prendre le débriefing du dernier filtre
+              for (const filterId of filterIds.reverse()) {
+                obj = room?.objects?.find(o => o.id === filterId)
+                if (obj?.debriefing) {
+                  debriefingToShow = obj.debriefing
+                  break
+                }
+              }
+            }
+          }
+          
+          if (debriefingToShow) {
+            console.log('[DEBUG] Débriefing trouvé pour puzzle', puzzleId, ':', debriefingToShow.title)
+            addDebriefing(puzzleId, debriefingToShow)
+          } else {
+            console.warn('[DEBUG] Aucun débriefing trouvé pour puzzle', puzzleId)
           }
           
           // Marquer comme notifié
@@ -529,6 +605,61 @@ export default function Page() {
 
       if (!obj) return
       
+      // VÉRIFICATION CRITIQUE: Vérifier les prérequis AVANT toute interaction
+      const objState = snapshot.objects[objectId]
+      if (!objState) {
+        console.warn("[v0] Object state not found:", objectId)
+        return
+      }
+
+      // Vérifier role lock
+      if (obj.roleLock && role !== obj.roleLock) {
+        console.warn("[v0] Wrong role:", role, "required:", obj.roleLock)
+        alert(`❌ Accès refusé!\n\nCet objet nécessite le rôle: ${obj.roleLock}\nVotre rôle: ${role || "Aucun"}`)
+        return
+      }
+
+      // Vérifier requires (prérequis)
+      if (obj.requires && obj.requires.length > 0) {
+        const allMetRequires = obj.requires.every((puzzleId) => {
+          return snapshot.puzzles[puzzleId]?.success === true
+        })
+        
+        if (!allMetRequires) {
+          const missingRequires = obj.requires.filter((puzzleId) => {
+            return !snapshot.puzzles[puzzleId]?.success
+          })
+          console.warn("[v0] Missing prerequisites:", missingRequires)
+          alert(`❌ Prérequis non remplis!\n\nVous devez d'abord compléter:\n${missingRequires.join(', ')}`)
+          return
+        }
+      }
+
+      // Vérifier si déjà complété (pour éviter les boucles)
+      const allPuzzles = gameData.rooms.flatMap((r: any) => r.puzzles || [])
+      const relatedPuzzles = allPuzzles.filter((puzzle: any) => {
+        if (obj.type === "panel" && puzzle.type === "infoSplit") {
+          return puzzle.sourcePanel === objectId && puzzle.targetConsole === objectId
+        }
+        if (obj.type === "console" && puzzle.type === "infoSplit") {
+          return puzzle.targetConsole === objectId
+        }
+        if ((obj.type === "switch" || obj.type === "valve") && (puzzle.type === "multiSwitch" || puzzle.type === "multiValve")) {
+          return puzzle.ids?.includes(objectId)
+        }
+        return false
+      })
+
+      const alreadySolved = relatedPuzzles.some((puzzle: any) => {
+        return snapshot.puzzles[puzzle.id]?.success === true
+      })
+
+      if (alreadySolved) {
+        console.warn("[v0] Already completed:", objectId)
+        alert("✅ Cette énigme est déjà résolue!")
+        return
+      }
+      
       // Notification multijoueur
       if (gameMode === "online" && localMultiManager) {
         const objectName = obj.id.replace(/([A-Z])/g, ' $1').trim()
@@ -573,7 +704,7 @@ export default function Page() {
         sendInteract(objectId, debugMode)
       }
     },
-    [gameData, sendInteract, snapshot, currentRoomId, debugTeleportToRoom, debugMode],
+    [gameData, sendInteract, snapshot, currentRoomId, debugTeleportToRoom, debugMode, role, gameMode, localMultiManager, displayName],
   )
 
   const handleDebugTeleport = useCallback(
@@ -615,12 +746,30 @@ export default function Page() {
         setSuccessMessage(`+${points} points! 🎉`)
         setTimeout(() => setSuccessMessage(null), 2500)
 
-        // Mark the object as completed
-        sendInteract(selectedMiniGame.objectId, debugMode)
+        // FIX: Activer l'objet directement au lieu de toggle
+        const obj = snapshot.objects[selectedMiniGame.objectId]
+        if (obj) {
+          // Mettre le switch/valve à ON (pas toggle!)
+          if (obj.type === "switch" || obj.type === "valve") {
+            obj.state = "on"
+            
+            // Mettre à jour la LED liée si existe
+            if (obj.ledId) {
+              const led = snapshot.objects[obj.ledId]
+              if (led) {
+                led.state = "green"
+                led.label = "ON"
+              }
+            }
+          }
+          
+          // Appeler sendInteract pour déclencher updatePuzzleState
+          sendInteract(selectedMiniGame.objectId, debugMode)
+        }
       }
       setSelectedMiniGame(null)
     },
-    [selectedMiniGame, sendInteract, debugMode],
+    [selectedMiniGame, sendInteract, debugMode, snapshot],
   )
 
   useEffect(() => {
@@ -654,6 +803,13 @@ export default function Page() {
         const currentIndex = role ? roles.indexOf(role) : -1
         const nextRole = roles[(currentIndex + 1) % roles.length]
         handleDebugRoleChange(nextRole)
+        return
+      }
+
+      // REFONTE: Toggle Journal avec touche J
+      if (e.key === "j" || e.key === "J") {
+        e.preventDefault()
+        setJournalOpen(prev => !prev)
         return
       }
 
@@ -1121,7 +1277,7 @@ export default function Page() {
         {/* NOUVEAU: Top Bar */}
         <TopBar
           timerMs={snapshot.timerMs}
-          co2Level={1000 + Math.floor((1800000 - snapshot.timerMs) / 1000) * 0.5 + snapshot.errors * 20 - puzzlesSolvedCount * 50}
+          co2Level={co2.currentLevel}
           hintsUsed={snapshot.hintsUsed}
           maxHints={2}
           onOpenJournal={() => setJournalOpen(!journalOpen)}
@@ -1166,57 +1322,99 @@ export default function Page() {
           onDismiss={removeNotification}
         />
 
-        {/* REFONTE: Nouveaux composants pédagogiques */}
+        {/* REFONTE: Ambiance lumineuse */}
         {currentRoomId === "R1" && (
-          <>
-            {/* CO₂ HUD supprimé - déjà dans TopBar */}
-            
-            <ProgressionBar
-              phases={[
-                {
-                  id: "phase1",
-                  label: "Diagnostiquer la panne",
-                  role: "Analyst",
-                  completed: snapshot.puzzles["step1_readPanel"]?.success || false,
-                  current: !snapshot.puzzles["step1_readPanel"]?.success,
-                  locked: false
-                },
-                {
-                  id: "phase2",
-                  label: "Réactiver les filtres HVAC",
-                  role: "Operator",
-                  completed: snapshot.puzzles["step2_enterCode"]?.success || false,
-                  current: snapshot.puzzles["step1_readPanel"]?.success && !snapshot.puzzles["step2_enterCode"]?.success,
-                  locked: !snapshot.puzzles["step1_readPanel"]?.success
-                },
-                {
-                  id: "phase3",
-                  label: "Synchroniser les valves",
-                  role: "Tech",
-                  completed: snapshot.puzzles["step3_switches"]?.success || false,
-                  current: snapshot.puzzles["step2_enterCode"]?.success && !snapshot.puzzles["step3_switches"]?.success,
-                  locked: !snapshot.puzzles["step2_enterCode"]?.success
-                },
-                {
-                  id: "phase4",
-                  label: "Valider le système",
-                  role: "Analyst",
-                  completed: snapshot.puzzles["step4_confirm"]?.success || false,
-                  current: snapshot.puzzles["step3_switches"]?.success && !snapshot.puzzles["step4_confirm"]?.success,
-                  locked: !snapshot.puzzles["step3_switches"]?.success
-                }
-              ]}
-              overallProgress={(Object.values([
-                snapshot.puzzles["step1_readPanel"]?.success,
-                snapshot.puzzles["step2_enterCode"]?.success,
-                snapshot.puzzles["step3_switches"]?.success,
-                snapshot.puzzles["step4_confirm"]?.success
-              ]).filter(Boolean).length / 4) * 100}
-            />
-
-            <AmbientLight co2Level={co2.currentLevel} />
-          </>
+          <AmbientLight co2Level={co2.currentLevel} />
         )}
+
+        {/* REFONTE: Timer synchronisation switches */}
+        {currentRoomId === "R1" && (() => {
+          // FIX: Lire windowMs depuis le puzzle au lieu de hardcoder
+          const switchPuzzle = currentRoom?.puzzles?.find((p: any) => p.id === "step3_switches") as any
+          const windowMs = (switchPuzzle?.windowMs as number) || 3000
+          
+          return (
+            <SyncTimer
+              isActive={syncTimerActive}
+              durationMs={windowMs}
+              onExpire={() => {
+                setSyncTimerActive(false)
+                setFirstSwitchTime(null)
+                // Réinitialiser les switches
+                const swA = snapshot.objects["swA"]
+                const swB = snapshot.objects["swB"]
+                if (swA) swA.state = "off"
+                if (swB) swB.state = "off"
+              }}
+            />
+          )
+        })()}
+
+        {/* REFONTE: Journal Unifié (remplace Protocole + Journal) */}
+        <UnifiedJournal
+          isOpen={journalOpen}
+          onClose={() => setJournalOpen(false)}
+          phases={(() => {
+            // FIX: Générer phases dynamiquement depuis puzzles au lieu de hardcoder
+            if (!currentRoom?.puzzles) return []
+            
+            return currentRoom.puzzles.map((puzzle: any, index: number) => {
+              const puzzleState = snapshot.puzzles[puzzle.id]
+              const prevPuzzle = index > 0 ? currentRoom.puzzles[index - 1] : null
+              const prevCompleted = prevPuzzle ? snapshot.puzzles[prevPuzzle.id]?.success : true
+              
+              // Trouver le rôle depuis les objectives
+              const objective = objectives.objectives.find(o => o.puzzleId === puzzle.id)
+              
+              return {
+                id: puzzle.id,
+                label: objective?.text.replace(/^[📊⌨️🔧✅]\s+/, '') || puzzle.id,
+                role: objective?.role || "Team",
+                completed: puzzleState?.success || false,
+                current: prevCompleted && !puzzleState?.success,
+                locked: !prevCompleted
+              }
+            })
+          })()}
+          overallProgress={(() => {
+            // FIX: Calculer dynamiquement depuis currentRoom.puzzles au lieu de hardcoder R1
+            const completedCount = currentRoom?.puzzles?.filter(p => 
+              snapshot.puzzles[p.id]?.success
+            ).length || 0
+            const totalCount = currentRoom?.puzzles?.length || 1
+            return (completedCount / totalCount) * 100
+          })()}
+          briefing="28 octobre 2025, 23h47 - Station BreatheLab-7
+
+Équipe, réveil d'urgence! Le système HVAC est compromis. 
+Le CO₂ monte dangereusement: 1000 ppm et ça grimpe.
+
+À 1500 ppm, pertes de conscience.
+À 2000 ppm, mortel.
+
+Vous avez 30 minutes pour:
+1. DIAGNOSTIQUER la panne (Analyst)
+2. RÉACTIVER les filtres (Operator)  
+3. DÉBLOQUER les valves (Tech)
+
+La tempête nous piège ici. Chaque minute compte.
+Bonne chance."
+          currentObjectives={objectives.objectives.map(o => o.text)}
+          recentDebriefings={debriefings.map(d => ({
+            title: d.content.title,
+            summary: d.content.explanation.substring(0, 200) + "..."
+          }))}
+          hintsFound={(() => {
+            // FIX: Afficher hints seulement si utilisés
+            const allHints = [
+              "Le code zone se calcule: Lettre + (valeur/100)",
+              "Les valves doivent être synchronisées dans une fenêtre de 3 secondes",
+              "Les filtres HEPA doivent être activés avant les filtres Carbon"
+            ]
+            // Afficher seulement le nombre de hints utilisés
+            return allHints.slice(0, snapshot.hintsUsed)
+          })()}
+        />
 
         <DebriefingManager
           debriefings={debriefings}
@@ -1227,6 +1425,8 @@ export default function Page() {
         <CurrentObjective
           title={`Mission: ${currentRoom?.name || "Chargement..."}`}
           steps={objectives.objectives}
+          currentRole={role || undefined}
+          needsTransmission={snapshot.puzzles["step1_readPanel"]?.success && !snapshot.puzzles["step2_enterCode"]?.success}
         />
 
         <RoomInfo

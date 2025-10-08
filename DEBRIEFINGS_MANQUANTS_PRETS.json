@@ -1,0 +1,39 @@
+{
+  "description": "3 débriefings manquants pour R2 et R3 - Prêts à intégrer dans breathe-line.json",
+  
+  "debriefing_R2_valves": {
+    "title": "🌬️ Système de Ventilation Activé!",
+    "explanation": "Félicitations! Vous avez activé le système de ventilation à 3 zones. Chaque valve contrôle une zone différente:\n\n• Valve A: Zone Laboratoire (air propre requis)\n• Valve B: Zone Habitation (confort thermique)\n• Valve C: Zone Technique (évacuation chaleur)\n\nL'activation simultanée assure un renouvellement d'air homogène. Dans les bâtiments modernes, on utilise la VMC (Ventilation Mécanique Contrôlée).",
+    "didYouKnow": "La VMC double flux peut récupérer jusqu'à 90% de la chaleur de l'air sortant pour préchauffer l'air entrant. Résultat: économie de 15-20% sur le chauffage! Les maisons passives utilisent ce principe pour consommer < 15 kWh/m²/an.",
+    "realWorld": "Les immeubles de bureaux modernes utilisent des systèmes BMS (Building Management System) qui ajustent automatiquement la ventilation selon le taux de CO₂, l'occupation et la température. Résultat: -30% de consommation énergétique vs ventilation constante.",
+    "unlocked": "Accès Filtration Room déverrouillé"
+  },
+  
+  "debriefing_R3_filters_sequence": {
+    "title": "🔬 Filtration Multi-Étages Activée!",
+    "explanation": "Parfait! Vous avez activé les 3 étages de filtration dans le bon ordre:\n\n1️⃣ HEPA (High-Efficiency Particulate Air)\n   → Capture 99.97% des particules ≥ 0.3 μm\n   → Poussières, pollens, bactéries, virus\n\n2️⃣ CARBON (Charbon actif)\n   → Absorbe COV (Composés Organiques Volatils)\n   → Odeurs, formaldéhyde, benzène\n\n3️⃣ UV-C (Lumière ultraviolette 254nm)\n   → Inactive virus et bactéries restants\n   → Stérilisation finale\n\nL'ORDRE est crucial: HEPA d'abord enlève les grosses particules qui satureraient le charbon actif.",
+    "didYouKnow": "Les filtres HEPA ont été inventés pendant le Projet Manhattan (1940s) pour capturer les particules radioactives! Aujourd'hui on les trouve dans les salles blanches (fabrication de puces), les hôpitaux (blocs opératoires), les avions (renouvellement air cabine) et les aspirateurs haut de gamme.",
+    "realWorld": "Dans un bloc opératoire, l'air passe par filtre HEPA H14 (99.995% particules) + surpression +15 Pa. Résultat: < 1 particule/m³ vs 35 millions/m³ dans l'air extérieur urbain! La NASA utilise des salles ISO 1 (< 10 particules/m³) pour assembler satellites.",
+    "unlocked": "Console Air Quality Monitor accessible"
+  },
+  
+  "debriefing_R3_air_quality": {
+    "title": "✅ Qualité d'Air Restaurée!",
+    "explanation": "Excellent! Le système de surveillance qualité d'air est opérationnel. Il surveille en temps réel:\n\n📊 Indicateurs:\n• CO₂ (cible: < 1000 ppm)\n• PM2.5 particules fines (< 25 μg/m³)\n• COV totaux (< 300 μg/m³)\n• Humidité relative (40-60%)\n• Température (20-23°C)\n\nLorsqu'un seuil est dépassé, le système ajuste automatiquement ventilation et filtration. La station peut maintenir un air sain 24/7!",
+    "didYouKnow": "Dans une maison typique, l'air intérieur est 2 à 5 fois PLUS pollué que l'air extérieur! Sources: meubles (formaldéhyde), produits ménagers (COV), humidité (moisissures), cuisson (PM2.5). Solution simple: aérer 10 minutes matin + soir réduit les polluants de 70%!",
+    "realWorld": "Selon l'OMS, la pollution de l'air intérieur cause 3.8 millions de décès/an, surtout dans les pays en développement (cuisson au bois/charbon). Coût économique: 2% du PIB mondial. Technologies émergentes: capteurs IoT connectés, IA qui optimise ventilation, plantes dépolluantes (pothos, ficus).",
+    "unlocked": "Sortie Emergency Exit déverrouillée"
+  },
+  
+  "instructions_integration": {
+    "R2": "Ajouter debriefing_R2_valves dans breathe-line.json → R2.puzzles[0] (multiValve_R2)",
+    "R3_filters": "Ajouter debriefing_R3_filters_sequence dans breathe-line.json → R3.puzzles[0] (sequence_R3)",
+    "R3_monitor": "Ajouter debriefing_R3_air_quality dans breathe-line.json → R3.puzzles[1] (infoSplit_R3)"
+  },
+  
+  "codes_ameliores": {
+    "panel_CO2_tooltip": "📊 DONNÉES CO₂ CAPTEURS\n\nCapteur A: 850 ppm ✅\nCapteur B: 1450 ppm ⚠️ ALERTE\nCapteur C: 920 ppm ✅\n\n🎯 CODE ACTIVATION HVAC:\n[Capteur en alerte] + [Valeur/100]\n\n💡 Exemple: B à 1450 ppm\n→ Code = B + (1450/100) = B14",
+    
+    "sequence_panel_tooltip": "🔬 SÉQUENCE ACTIVATION FILTRES\n\nOrdre obligatoire:\n1️⃣ Filtre A - HEPA (particules)\n2️⃣ Filtre C - Carbon (COV)\n3️⃣ Filtre B - UV-C (stérilisation)\n\n📝 CODE: Initiales dans l'ordre\nA → C → B = ACB\n\n💡 POURQUOI cet ordre?\nHEPA enlève grosses particules\n→ Protège charbon de saturation\n→ UV stérilise en dernier"
+  }
+}

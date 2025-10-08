@@ -39,16 +39,16 @@ export function BriefingScreen({ onStart, players = [], isMultiplayer = false }:
 
             <p>
               Les capteurs de qualité de l'air ont détecté une montée anormale du CO₂ dans le bâtiment principal. Le
-              système de ventilation HVAC a été saboté et ne répond plus aux commandes.
+              système de ventilation HVAC est défaillant et ne répond plus aux commandes.
             </p>
 
             <p>
-              <strong className="text-red-700">Niveau actuel : 1320 ppm de CO₂</strong> (seuil critique : 1500 ppm)
+              <strong className="text-red-700">Niveau actuel : 1000 ppm de CO₂</strong> (seuil critique : 1500 ppm)
             </p>
 
             <p>
-              Vous êtes une équipe d'intervention d'urgence spécialisée en systèmes de ventilation. Votre mission :
-              infiltrer les 3 zones du laboratoire, résoudre les énigmes techniques, et restaurer le système avant que
+              Vous êtes l'équipe de maintenance d'urgence spécialisée en systèmes de ventilation. Votre mission :
+              réparer les 3 zones du laboratoire, résoudre les problèmes techniques, et restaurer le système avant que
               les niveaux ne deviennent mortels.
             </p>
 
@@ -67,27 +67,27 @@ export function BriefingScreen({ onStart, players = [], isMultiplayer = false }:
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg">
               <div className="text-2xl">1️⃣</div>
               <div>
-                <strong className="text-blue-900">Lobby d'Urgence :</strong>
+                <strong className="text-blue-900">Control Room (R1) :</strong>
                 <p className="text-sm text-gray-700">
-                  Activez les 4 ventilations d'urgence simultanément pour stabiliser temporairement les niveaux de CO₂
+                  Diagnostiquez la panne CO₂ avec l'Analyst, activez le terminal HVAC avec l'Operator, puis synchronisez les valves A et B en moins de 3 secondes (Tech)
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg">
               <div className="text-2xl">2️⃣</div>
               <div>
-                <strong className="text-blue-900">Laboratoire de Filtration :</strong>
+                <strong className="text-blue-900">Ventilation Room (R2) :</strong>
                 <p className="text-sm text-gray-700">
-                  Recalibrez les capteurs et activez la séquence de filtration dans le bon ordre
+                  Activez les 3 valves de ventilation simultanément (Operator) pour équilibrer la pression dans toutes les zones de la station
                 </p>
               </div>
             </div>
             <div className="flex items-start gap-3 bg-white p-3 rounded-lg">
               <div className="text-2xl">3️⃣</div>
               <div>
-                <strong className="text-blue-900">Salle de Contrôle :</strong>
+                <strong className="text-blue-900">Filtration Room (R3) :</strong>
                 <p className="text-sm text-gray-700">
-                  Redémarrez le système HVAC principal et déverrouillez la sortie d'évacuation
+                  Activez les filtres HEPA, Carbon et UV dans le bon ordre (Tech), puis validez la séquence avec le code (Operator)
                 </p>
               </div>
             </div>
@@ -104,8 +104,8 @@ export function BriefingScreen({ onStart, players = [], isMultiplayer = false }:
             <div className="bg-white p-3 rounded-lg">
               <strong className="text-purple-900">Interaction :</strong>
               <p className="text-gray-700">
-                Appuyez sur <kbd className="px-2 py-1 bg-purple-100 rounded border border-purple-300 font-mono">E</kbd>{" "}
-                près d'un objet
+                Appuyez sur <kbd className="px-2 py-1 bg-purple-100 rounded border border-purple-300 font-mono">*</kbd> ou{" "}
+                <kbd className="px-2 py-1 bg-purple-100 rounded border border-purple-300 font-mono">Entrée</kbd> près d'un objet
               </p>
             </div>
             <div className="bg-white p-3 rounded-lg">
@@ -131,28 +131,26 @@ export function BriefingScreen({ onStart, players = [], isMultiplayer = false }:
             <Users className="w-6 h-6" />
             Coopération d'Équipe Essentielle
           </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
             <div className="bg-white p-3 rounded-lg">
               <div className="text-2xl mb-1">📊</div>
               <strong className="text-green-900">Analyst :</strong>
-              <p className="text-gray-700">Lit les panneaux de données, analyse les graphiques CO₂</p>
+              <p className="text-gray-700">Lit les panneaux de données, analyse les graphiques CO₂, trouve les codes</p>
             </div>
             <div className="bg-white p-3 rounded-lg">
               <div className="text-2xl mb-1">🔧</div>
               <strong className="text-green-900">Tech :</strong>
-              <p className="text-gray-700">Active les switches, valves et systèmes mécaniques</p>
+              <p className="text-gray-700">Active les switches, synchronise les valves, gère les mini-jeux mécaniques</p>
             </div>
             <div className="bg-white p-3 rounded-lg">
               <div className="text-2xl mb-1">⌨️</div>
               <strong className="text-green-900">Operator :</strong>
-              <p className="text-gray-700">Entre les codes dans les consoles de contrôle</p>
-            </div>
-            <div className="bg-white p-3 rounded-lg">
-              <div className="text-2xl mb-1">📦</div>
-              <strong className="text-green-900">Logistician :</strong>
-              <p className="text-gray-700">Manipule les objets et équipements mobiles</p>
+              <p className="text-gray-700">Entre les codes dans les consoles, active les systèmes de ventilation</p>
             </div>
           </div>
+          <p className="text-xs text-green-800 mt-3 text-center">
+            💡 En mode solo, vous pouvez changer de rôle avec le Debug Panel (touche <kbd className="px-1 py-0.5 bg-green-100 rounded font-mono text-xs">+</kbd>)
+          </p>
         </div>
 
         <div className="bg-amber-50 rounded-lg p-6 space-y-3 border-l-4 border-amber-500">
@@ -168,7 +166,7 @@ export function BriefingScreen({ onStart, players = [], isMultiplayer = false }:
             <li>Les bonnes pratiques pour améliorer l'air intérieur</li>
           </ul>
           <p className="text-sm text-amber-900 font-semibold mt-3">
-            💡 Après chaque salle, un quiz pédagogique vous permettra de valider vos connaissances !
+            💡 Après chaque énigme résolue, des débriefings pédagogiques enrichiront vos connaissances avec des faits scientifiques réels !
           </p>
         </div>
 

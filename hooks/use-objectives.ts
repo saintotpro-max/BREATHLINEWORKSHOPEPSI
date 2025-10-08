@@ -19,43 +19,35 @@ const roomObjectives: Record<string, ObjectiveStep[]> = {
   R1: [
     {
       id: "R1_read_panel",
-      text: "Lire les données CO₂",
+      text: "📊 Lire les données CO₂",
       role: "Analyst",
       completed: false,
       current: false,
-      puzzleId: "panelData_R1"
+      puzzleId: "step1_readPanel"
     },
     {
       id: "R1_enter_code",
-      text: "Entrer le code console",
+      text: "⌨️ Entrer le code B14",
       role: "Operator",
       completed: false,
       current: false,
-      puzzleId: "infoSplit_R1"
+      puzzleId: "step2_enterCode"
     },
     {
-      id: "R1_switch_a",
-      text: "Activer Switch A",
+      id: "R1_switches",
+      text: "🔧 Activer Switch A & B (simultané)",
       role: "Tech",
       completed: false,
       current: false,
-      puzzleId: "multiSwitch_R1_A"
-    },
-    {
-      id: "R1_switch_b",
-      text: "Activer Switch B (dans les 3s)",
-      role: "Tech",
-      completed: false,
-      current: false,
-      puzzleId: "multiSwitch_R1_B"
+      puzzleId: "step3_switches"
     },
     {
       id: "R1_confirm",
-      text: "Confirmer la séquence",
+      text: "✅ Valider le système HVAC",
       role: "Analyst",
       completed: false,
       current: false,
-      puzzleId: "finalConfirm_R1"
+      puzzleId: "step4_confirm"
     }
   ],
   R2: [

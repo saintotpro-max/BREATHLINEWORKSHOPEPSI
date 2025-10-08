@@ -110,11 +110,14 @@ export function checkInfoSplit(puzzle: InfoSplitPuzzle, snapshot: GameSnapshot):
 
   // Get the correct code from the source panel
   const panelObj = snapshot.objects[puzzle.sourcePanel]
-  if (!panelObj || !panelObj.content?.code) {
+  // FIX: Chercher dans panel.code au lieu de content.code
+  const correctCode = panelObj?.panel?.code || panelObj?.content?.code
+  
+  if (!correctCode) {
     return { success: false, reason: "Panel code not found" }
   }
 
-  const correct = consoleObj.lastInput === panelObj.content.code
+  const correct = consoleObj.lastInput === correctCode
   return {
     success: correct,
     reason: correct ? undefined : "Incorrect code",
@@ -310,9 +313,20 @@ export function updatePuzzleState(
     }
 
     case "infoSplit": {
+      const infoPuzzle = puzzle as InfoSplitPuzzle
+      
+      // FIX: Gérer panelRead pour les puzzles où targetConsole === sourcePanel (lecture simple)
+      if (action.type === "panelRead") {
+        // Si c'est juste une lecture (panel → panel), marquer comme réussi
+        if (infoPuzzle.targetConsole === infoPuzzle.sourcePanel) {
+          puzzleState.success = true
+          puzzleState.reason = undefined
+        }
+      }
+      
       // InfoSplit is checked when console input is submitted
       if (action.type === "consoleSubmit") {
-        const result = checkInfoSplit(puzzle as InfoSplitPuzzle, newSnapshot)
+        const result = checkInfoSplit(infoPuzzle, newSnapshot)
         puzzleState.success = result.success
         puzzleState.reason = result.reason
       }
@@ -357,7 +371,8 @@ export function canInteract(
   obj: GameObject, 
   adjacencyRange: number, 
   snapshot?: GameSnapshot,
-  debugMode = false
+  debugMode = false,
+  gameDefinition?: any
 ): boolean {
   const distance = chebyshevDistance(player.x, player.y, obj.x, obj.y)
 
@@ -381,6 +396,38 @@ export function canInteract(
     const prereqsMet = checkPrerequisites(obj.requires, snapshot)
     if (!prereqsMet) {
       console.log(`[v0] Prerequisites not met for ${obj.id}:`, obj.requires)
+      return false
+    }
+  }
+
+  // NOUVEAU: Vérifier si le puzzle associé à cet objet est déjà résolu
+  if (snapshot && gameDefinition) {
+    const allPuzzles = gameDefinition.rooms.flatMap((r: any) => r.puzzles || [])
+    
+    // Trouver les puzzles liés à cet objet
+    const relatedPuzzles = allPuzzles.filter((puzzle: Puzzle) => {
+      // Panel: sourcePanel === obj.id && targetConsole === obj.id (lecture simple)
+      if (obj.type === "panel" && puzzle.type === "infoSplit") {
+        return puzzle.sourcePanel === obj.id && puzzle.targetConsole === obj.id
+      }
+      // Console: targetConsole === obj.id
+      if (obj.type === "console" && puzzle.type === "infoSplit") {
+        return puzzle.targetConsole === obj.id
+      }
+      // Switch/Valve: ids.includes(obj.id)
+      if ((obj.type === "switch" || obj.type === "valve") && (puzzle.type === "multiSwitch" || puzzle.type === "multiValve")) {
+        return puzzle.ids?.includes(obj.id)
+      }
+      return false
+    })
+
+    // Si un des puzzles liés est déjà résolu, bloquer l'interaction
+    const alreadySolved = relatedPuzzles.some((puzzle: Puzzle) => {
+      return snapshot.puzzles[puzzle.id]?.success === true
+    })
+
+    if (alreadySolved) {
+      console.log(`[v0] Object ${obj.id} already completed`)
       return false
     }
   }

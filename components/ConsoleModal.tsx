@@ -32,10 +32,12 @@ export function ConsoleModal({ consoleId, gameData, onClose, onSubmit, canOperat
       return
     }
 
-    if (console.validFormatRegex) {
-      const pattern = new RegExp(console.validFormatRegex)
+    // FIX: Chercher validFormatRegex dans console.console (structure JSON correcte)
+    const validFormatRegex = console.console?.validFormatRegex
+    if (validFormatRegex) {
+      const pattern = new RegExp(validFormatRegex)
       if (!pattern.test(input)) {
-        setError(`Format invalide. Attendu: ${getFormatHint(console.accept)}`)
+        setError(`Format invalide. Attendu: ${getFormatHint(console.console?.accept || console.accept)}`)
         return
       }
     }
@@ -47,7 +49,8 @@ export function ConsoleModal({ consoleId, gameData, onClose, onSubmit, canOperat
 
   const getFormatHint = (acceptType: string) => {
     if (acceptType === "code4") return "4 chiffres (ex: 1234)"
-    if (acceptType === "codeN") return "3 chiffres (ex: 123)"
+    if (acceptType === "codeN") return "Lettre + 2 chiffres (ex: B14)"
+    if (acceptType === "code3") return "3 lettres (ex: ACB)"
     return "Code valide"
   }
 
@@ -76,7 +79,7 @@ export function ConsoleModal({ consoleId, gameData, onClose, onSubmit, canOperat
             <>
               <div className="bg-slate-800 border border-cyan-500/30 rounded-lg p-4">
                 <div className="text-cyan-400 text-sm font-mono mb-2">SYSTÈME: {consoleId}</div>
-                <div className="text-cyan-100 text-sm">Format requis: {getFormatHint(console.accept)}</div>
+                <div className="text-cyan-100 text-sm">Format requis: {getFormatHint(console.console?.accept || console.accept)}</div>
                 {console.tooltip && <div className="text-gray-400 text-xs mt-2">{console.tooltip}</div>}
               </div>
 
@@ -86,17 +89,17 @@ export function ConsoleModal({ consoleId, gameData, onClose, onSubmit, canOperat
                   type="text"
                   value={input}
                   onChange={(e) => {
-                    setInput(e.target.value)
+                    setInput(e.target.value.toUpperCase())
                     setError(null)
                   }}
-                  placeholder="****"
-                  className="bg-slate-800 border-cyan-500/50 text-cyan-100 text-center text-2xl font-mono tracking-widest"
+                  placeholder="Ex: B14"
+                  className="bg-slate-800 border-cyan-500/50 text-cyan-100 text-center text-2xl font-mono tracking-widest uppercase"
                   onKeyDown={(e) => {
                     if (e.key === "Enter") handleSubmit()
                     if (e.key === "Escape") onClose()
                   }}
                   autoFocus
-                  maxLength={console.accept === "code4" ? 4 : 3}
+                  maxLength={10}
                 />
               </div>
 

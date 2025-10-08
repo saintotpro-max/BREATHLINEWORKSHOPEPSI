@@ -96,25 +96,26 @@ export function RoomSelectionModal({
 }
 
 function getConnectedRooms(currentRoomId: string, gameData: GameDefinition) {
-  // Define room connections and their unlock requirements
+  // FIX: Utiliser les vraies salles du JSON au lieu de hardcoder
+  // R1 = Control Room, R2 = Ventilation Room, R3 = Filtration Room
   const roomConnections: Record<string, { id: string; name: string; description: string; locked: boolean }[]> = {
     R1: [
-      { id: "R1", name: "Control Room", description: "Salle de contrôle principale", locked: false },
-      { id: "R2", name: "Filtration Zone", description: "Zone de filtration d'air", locked: false },
+      { id: "R1", name: "🎛️ Control Room", description: "Salle de contrôle principale (actuelle)", locked: false },
+      { id: "R2", name: "🌬️ Ventilation Room", description: "Salle de ventilation", locked: false },
     ],
     R2: [
-      { id: "R1", name: "Control Room", description: "Retour à la salle de contrôle", locked: false },
-      { id: "R2", name: "Filtration Zone", description: "Salle actuelle", locked: false },
-      { id: "R3", name: "Ventilation Bay", description: "Baie de ventilation", locked: false },
+      { id: "R1", name: "🎛️ Control Room", description: "Retour à la salle de contrôle", locked: false },
+      { id: "R2", name: "🌬️ Ventilation Room", description: "Salle actuelle", locked: false },
+      { id: "R3", name: "🔬 Filtration Room", description: "Salle de filtration d'air", locked: false },
     ],
     R3: [
-      { id: "R2", name: "Filtration Zone", description: "Retour à la zone de filtration", locked: false },
-      { id: "R3", name: "Ventilation Bay", description: "Salle actuelle", locked: false },
-      { id: "EXIT", name: "Purge Gate", description: "Sortie finale", locked: false },
+      { id: "R2", name: "🌬️ Ventilation Room", description: "Retour à la ventilation", locked: false },
+      { id: "R3", name: "🔬 Filtration Room", description: "Salle actuelle", locked: false },
+      { id: "EXIT", name: "🚪 Emergency Exit", description: "Sortie finale", locked: false },
     ],
     EXIT: [
-      { id: "R3", name: "Ventilation Bay", description: "Retour à la baie de ventilation", locked: false },
-      { id: "EXIT", name: "Purge Gate", description: "Salle actuelle", locked: false },
+      { id: "R3", name: "🔬 Filtration Room", description: "Retour à la filtration", locked: false },
+      { id: "EXIT", name: "🚪 Emergency Exit", description: "Vous êtes à la sortie!", locked: false },
     ],
   }
 

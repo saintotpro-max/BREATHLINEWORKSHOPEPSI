@@ -1,6 +1,6 @@
 "use client"
 
-import { Target, CheckCircle2, Circle } from "lucide-react"
+import { Target, CheckCircle2, Circle, AlertCircle, MessageSquare } from "lucide-react"
 
 interface ObjectiveStep {
   id: string
@@ -13,9 +13,11 @@ interface ObjectiveStep {
 interface CurrentObjectiveProps {
   title: string
   steps: ObjectiveStep[]
+  currentRole?: string
+  needsTransmission?: boolean
 }
 
-export function CurrentObjective({ title, steps }: CurrentObjectiveProps) {
+export function CurrentObjective({ title, steps, currentRole, needsTransmission }: CurrentObjectiveProps) {
   const currentStep = steps.find(s => s.current && !s.completed)
   const nextSteps = steps.filter(s => !s.completed && !s.current).slice(0, 2)
   const completedCount = steps.filter(s => s.completed).length
@@ -32,6 +34,23 @@ export function CurrentObjective({ title, steps }: CurrentObjectiveProps) {
           </span>
         </div>
 
+        {/* Indicateur transmission (si Operator attend code) */}
+        {needsTransmission && currentRole === "Operator" && currentStep?.id === "R1_enter_code" && (
+          <div className="mb-3">
+            <div className="flex items-start gap-2 bg-blue-500/10 border border-blue-500/30 rounded-lg p-3">
+              <MessageSquare className="w-4 h-4 text-blue-400 animate-pulse flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <div className="text-blue-300 text-xs font-medium mb-1">
+                  💬 Transmission requise
+                </div>
+                <div className="text-blue-200 text-xs">
+                  Attendez que l'<span className="font-bold">Analyst</span> vous transmette le code via le chat
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Current step */}
         {currentStep && (
           <div className="mb-3">
@@ -44,10 +63,17 @@ export function CurrentObjective({ title, steps }: CurrentObjectiveProps) {
                   {currentStep.text}
                 </div>
                 {currentStep.role && (
-                  <div className="mt-1">
-                    <span className="inline-block px-2 py-0.5 bg-yellow-500/20 text-yellow-300 text-xs rounded">
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className={`inline-block px-2 py-0.5 text-xs rounded ${
+                      currentRole === currentStep.role 
+                        ? "bg-green-500/20 text-green-300 font-bold"
+                        : "bg-yellow-500/20 text-yellow-300"
+                    }`}>
                       [{currentStep.role}]
                     </span>
+                    {currentRole !== currentStep.role && (
+                      <span className="text-xs text-gray-400">← Pas votre rôle</span>
+                    )}
                   </div>
                 )}
               </div>
