@@ -2,26 +2,85 @@
 
 Escape game multijoueur coopératif sur la qualité de l'air intérieur, développé pour le Workshop EPSI/WIS 2025.
 
+**🎮 Thème**: Environnement - Qualité de l'air et CO₂  
+**🎯 Public**: Lycéens 15-18 ans  
+**⏱️ Durée**: 30 minutes  
+**👥 Mode**: Solo ou Multijoueur (2-4 joueurs)
+
+## ✨ Fonctionnalités
+
+- 🎯 **3 salles progressives** avec énigmes coopératives
+- 📊 **Énigmes pédagogiques** basées sur données réelles
+- 🌡️ **Simulation CO₂ temps réel** avec graphiques
+- 🎓 **Débriefings éducatifs** après chaque puzzle
+- 🎨 **Rendu isométrique** style pixel-art
+- 💬 **Chat d'équipe** en temps réel
+- 🎵 **Mini-jeux** interactifs (Simon, Wiring, CO2 Graph)
+- 🔒 **Système de rôles** (Analyst, Tech, Operator, Logistician)
+
 ## 📋 Prérequis
 
-- **Node.js** 18+ et npm/yarn/pnpm
-- **Compte Supabase** (pour le mode multijoueur)
+- **Node.js** 18+ et npm
+- **Compte Supabase** (optionnel, seulement pour multijoueur)
 
-## 🚀 Installation Locale
+## 🚀 Installation pour Testeurs
 
-### 1. Télécharger le projet
+### OPTION 1: Test Rapide (Mode Solo - RECOMMANDÉ)
 
-Téléchargez le ZIP depuis v0 et extrayez-le, ou clonez depuis GitHub.
+```bash
+# 1. Cloner le projet
+git clone https://github.com/saintotpro-max/BREATHLINEWORKSHOPEPSI.git
+cd BREATHLINEWORKSHOPEPSI
 
-### 2. Installer les dépendances
-
-\`\`\`bash
+# 2. Installer les dépendances
 npm install
-# ou
-yarn install
-# ou
-pnpm install
-\`\`\`
+
+# 3. Lancer le jeu
+npm run dev
+
+# 4. Ouvrir dans le navigateur
+# http://localhost:3000
+```
+
+**Pas besoin de configuration!** Le mode solo fonctionne directement.
+
+---
+
+## 🎮 Comment Jouer (Guide Rapide)
+
+### 1. **Écran d'accueil**
+- Choisissez "Mode Solo" pour tester seul
+- Ou "Mode Multijoueur" pour jouer avec d'autres
+
+### 2. **Choisir un rôle**
+- **📊 Analyst**: Lit les panneaux, analyse les données
+- **🔧 Tech**: Active les switches et mécanismes
+- **⌨️ Operator**: Entre les codes dans les consoles
+- **📦 Logistician**: Transporte objets (salles avancées)
+
+### 3. **Contrôles**
+- **Déplacement**: Clic souris OU touches WASD/ZQSD
+- **Interagir**: Touche `*` (astérisque) OU `Entrée`
+- **Chat**: Fenêtre en bas à gauche (mode multi)
+- **Debug**: `+` pour activer, `R` pour changer rôle
+
+### 4. **Objectif**
+Résolvez les 4 énigmes de chaque salle dans l'ordre:
+- **R1 - Control Room**: Diagnostiquer et réactiver le système HVAC
+- **R2 - Lab Filtration**: Optimiser les filtres
+- **R3 - Central HVAC**: Lancer le système final
+
+### 5. **Indices visuels**
+- 🟢 Prompt vert = Vous pouvez interagir
+- 🔴 Prompt rouge = Bloqué (mauvais rôle ou prérequis)
+- 🟠 Prompt orange = Prérequis non remplis
+- ✅ Objectif coché = Énigme résolue
+
+---
+
+### OPTION 2: Mode Multijoueur (avec Supabase)
+
+Si vous voulez tester le multijoueur, suivez les instructions détaillées ci-dessous.
 
 ### 3. Configuration Supabase (Mode Multijoueur)
 
@@ -200,11 +259,42 @@ POSTGRES_HOST=db.xxxxx.supabase.co
 └── scripts/               # Scripts utilitaires
 \`\`\`
 
+## 🧪 Pour les Testeurs / Jury
+
+### Test Rapide (5 minutes)
+```bash
+git clone https://github.com/saintotpro-max/BREATHLINEWORKSHOPEPSI.git
+cd BREATHLINEWORKSHOPEPSI
+npm install
+npm run dev
+```
+Puis ouvrez http://localhost:3000 et choisissez **Mode Solo** → **Analyst**
+
+### Ce qu'il faut tester en R1:
+1. ✅ Cliquez sur le **Panneau CO₂** (objet bleu à gauche)
+2. ✅ Lisez le nouveau contenu (4 capteurs, calcul du code B14)
+3. ✅ Fermez → Un **débriefing pédagogique** devrait apparaître!
+4. ✅ Vérifiez la **barre de progression** à gauche (Phase 1 complétée)
+5. ✅ Regardez le **CO₂** en haut (devrait monter progressivement)
+
+### Points d'évaluation
+- ✅ Scénario immersif (Station arctique, Dr. Lemaire)
+- ✅ Énigmes basées sur données réelles (capteurs, calculs)
+- ✅ Débriefings pédagogiques automatiques
+- ✅ Progression séquentielle (4 phases verrouillées)
+- ✅ Coopération forcée (transmission info Analyst → Operator)
+- ✅ UI immersive (graphiques, animations, effets)
+
+---
+
 ## 🎓 Crédits
 
 Développé pour le Workshop EPSI/WIS 2025 - "Escape Tech : Crée ton Aventure Numérique"
 
-Thème : Environnement - Qualité de l'air intérieur
+**Thème**: Environnement - Qualité de l'air intérieur  
+**Équipe**: Groupe [VOTRE NUMÉRO]  
+**Campus**: [VOTRE CAMPUS]  
+**Date**: 6-10 Octobre 2025
 
 ## 📄 Licence
 
