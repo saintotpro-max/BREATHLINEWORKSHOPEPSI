@@ -1,0 +1,567 @@
+{
+  "title": "Breathe Line - Indoor Air Quality Escape",
+  "description": "A cooperative educational escape game about indoor air quality and ventilation systems",
+  "timer": {
+    "durationMs": 1800000,
+    "penaltyAfterMs": 1200000,
+    "penaltyPerMinute": 1
+  },
+  "audio": {
+    "bgm": "chiptune_loop_01",
+    "sfx": {
+      "click": "click_01",
+      "unlock": "unlock_01",
+      "error": "buzz_01"
+    }
+  },
+  "roles": ["Analyst", "Tech", "Operator", "Logistician"],
+  "ui": {
+    "adjacencyRange": 3,
+    "controls": {
+      "move": "Click or WASD/ZQSD",
+      "interact": "* (asterisk) or Enter (when adjacent)",
+      "chat": "Type in chat panel",
+      "debug": "+ to toggle debug mode"
+    }
+  },
+  "scoring": {
+    "baseScore": 100,
+    "maxHints": 2,
+    "hintCost": 10,
+    "errorPenalty": 2,
+    "miniGameBonus": 50
+  },
+  "debugSolo": {
+    "enabled": true,
+    "latchMs": 5000,
+    "showStickyNotes": true,
+    "roleSwitch": true,
+    "hotspots": true
+  },
+  "rooms": [
+    {
+      "id": "R1",
+      "name": "🎛️ Control Room - Station de Contrôle",
+      "grid": { "cols": 14, "rows": 10 },
+      "spawn": { "x": 7, "y": 8 },
+      "objects": [
+        {
+          "id": "swA",
+          "type": "switch",
+          "name": "🔧 Switch Alpha",
+          "x": 3,
+          "y": 3,
+          "state": "off",
+          "roleLock": "Tech",
+          "cooldownMs": 300,
+          "ledId": "ledA",
+          "requires": ["step2_enterCode"],
+          "tooltip": "🔧 Valve Alpha (Entrée Air)\n🔒 Accès: Tech uniquement\n💡 SYNC OBLIGATOIRE avec Valve Beta!\n⏱️ Fenêtre: 3 secondes max\n🔗 Prérequis: Terminal réactivé",
+          "miniGame": "simon",
+          "debriefing": {
+            "title": "Valve Alpha activée!",
+            "explanation": "La Valve A contrôle l'entrée d'air frais. Elle doit être ouverte simultanément avec la Valve B (extraction) pour maintenir l'équilibre de pression dans la station.",
+            "didYouKnow": "Les mini-jeux de type Simon testent votre mémoire de travail, une compétence essentielle pour les opérateurs de systèmes complexes!",
+            "realWorld": "Dans les sous-marins et stations spatiales, chaque valve est critique. Les protocoles de sécurité exigent toujours une double vérification.",
+            "unlocked": "Attendez que Valve Beta soit aussi activée"
+          }
+        },
+        {
+          "id": "swB",
+          "type": "switch",
+          "name": "🔧 Switch Beta",
+          "x": 11,
+          "y": 3,
+          "state": "off",
+          "roleLock": "Tech",
+          "cooldownMs": 300,
+          "ledId": "ledB",
+          "requires": ["step2_enterCode"],
+          "tooltip": "🔧 Valve Beta (Extraction Air)\n🔒 Accès: Tech uniquement\n💡 SYNC avec Valve Alpha < 3s!\n⚠️ Déséquilibre = DANGER\n🔗 Prérequis: Terminal réactivé",
+          "miniGame": "simon",
+          "debriefing": {
+            "title": "Valves synchronisées!",
+            "explanation": "Parfait! Les deux valves sont ouvertes en synchronisation. L'air frais entre par A pendant que l'air vicié sort par B. L'équilibre de pression est maintenu, évitant tout risque pour la structure.",
+            "didYouKnow": "Dans les avions, la pressurisation de la cabine fonctionne sur le même principe. L'air est constamment renouvelé tout en maintenant une pression stable.",
+            "realWorld": "Les datacenters utilisent des systèmes de ventilation similaires pour évacuer la chaleur tout en maintenant la pression. Une panne peut coûter des millions!",
+            "unlocked": "Panneau de Validation accessible"
+          }
+        },
+        {
+          "id": "ledA",
+          "type": "led",
+          "name": "💡 LED Alpha",
+          "x": 3,
+          "y": 2,
+          "state": "red",
+          "label": "OFF",
+          "bindsTo": "swA"
+        },
+        {
+          "id": "ledB",
+          "type": "led",
+          "name": "💡 LED Beta",
+          "x": 11,
+          "y": 2,
+          "state": "red",
+          "label": "OFF",
+          "bindsTo": "swB"
+        },
+        {
+          "id": "panelData",
+          "type": "panel",
+          "name": "📊 Panneau de Données CO₂",
+          "x": 2,
+          "y": 7,
+          "roleLock": "Analyst",
+          "panel": {
+            "title": "📊 DIAGNOSTIC CO₂ - 4 CAPTEURS",
+            "text": "⚠️ ALERTE SYSTÈME DÉTECTÉE\n\n📊 RELEVÉS DES CAPTEURS:\n\nCapteur A (Salle repos): 980 ppm ✓\nCapteur B (Lab biologie): 1450 ppm ⚠️\nCapteur C (Contrôle): 1050 ppm ⚠️\nCapteur D (Serre): 720 ppm ✓\n\n🎯 MISSION:\nIdentifiez le capteur en zone CRITIQUE (>1400 ppm)\n\n📚 RAPPEL SEUILS:\n< 800 ppm: OPTIMAL\n800-1000 ppm: ACCEPTABLE\n1000-1400 ppm: ALERTE\n> 1400 ppm: CRITIQUE!\n\n💡 Le code zone = Lettre capteur + valeur/100\nExemple: Si Capteur B (1450) est critique\n→ Code = B + (1450/100) = B14 (arrondi)\n\n📡 TRANSMETTEZ ce code à l'Operator!",
+            "code": "B14",
+            "debriefing": {
+              "title": "Diagnostic CO₂ réussi!",
+              "explanation": "Le CO₂ (dioxyde de carbone) s'accumule naturellement dans les espaces clos. À partir de 1000 ppm, il affecte la concentration. Au-delà de 1400 ppm, c'est dangereux pour la santé.",
+              "didYouKnow": "Dans les salles de classe mal ventilées, le CO₂ peut atteindre 1800 ppm, réduisant les performances scolaires de 60%! C'est pourquoi aérer est crucial.",
+              "realWorld": "Les capteurs CO₂ sont désormais installés dans de nombreux bâtiments publics depuis la pandémie. Ils permettent d'optimiser la ventilation en temps réel.",
+              "unlocked": "Code zone critique transmis: B14"
+            }
+          },
+          "tooltip": "📊 Panneau de Données CO₂\n🔒 Accès: Analyst uniquement\n💡 Astuce: Lisez attentivement et notez le code d'activation!\n📞 Communication: Utilisez le chat pour transmettre l'info",
+          "miniGame": "co2graph"
+        },
+        {
+          "id": "consoleR1",
+          "type": "console",
+          "name": "⌨️ Console d'Activation",
+          "x": 12,
+          "y": 7,
+          "console": {
+            "accept": "codeN",
+            "validFormatRegex": "^[A-D][0-9]{1,2}$",
+            "correctCode": "B14"
+          },
+          "roleLock": "Operator",
+          "cooldownMs": 250,
+          "requires": ["step1_readPanel"],
+          "tooltip": "⌨️ Terminal de Réactivation HVAC\n🔒 Accès: Operator uniquement\n💡 Demandez le code zone à l'Analyst!\n🔢 Format: Lettre + Nombre (ex: B14)\n⚠️ Erreur = pénalité temps\n🔗 Prérequis: Diagnostic complété",
+          "miniGame": "wiring",
+          "debriefing": {
+            "title": "Filtres HVAC réactivés!",
+            "explanation": "Les systèmes HVAC (Heating, Ventilation, Air Conditioning) renouvellent l'air intérieur en aspirant l'air vicié riche en CO₂, le filtrant, puis injectant de l'air frais. Un bon HVAC renouvelle l'air 2-3 fois par heure.",
+            "didYouKnow": "Les bâtiments modernes sont très étanches pour l'efficacité énergétique, mais cela piège le CO₂. Sans HVAC efficace, le niveau peut monter très rapidement!",
+            "realWorld": "Depuis la pandémie, les systèmes HVAC ont été améliorés dans de nombreux établissements. C'est devenu un critère de qualité des bâtiments.",
+            "unlocked": "Valves mécaniques A et B débloquées"
+          }
+        },
+        {
+          "id": "confirmPanel",
+          "type": "panel",
+          "name": "✅ Panneau de Confirmation",
+          "x": 7,
+          "y": 2,
+          "roleLock": "Analyst",
+          "requires": ["step3_switches"],
+          "panel": {
+            "title": "✅ VALIDATION SYSTÈME",
+            "text": "📋 RAPPORT FINAL:\n\n✓ Diagnostic: Zone B identifiée (1450 ppm)\n✓ HVAC: Filtres réactivés\n✓ Valve A: Synchronisée\n✓ Valve B: Synchronisée\n\n📊 STATUT ACTUEL:\nNiveau CO₂: En baisse\nDébit air: 150 m³/h\nTempérature: 18°C ✓\nPression: Équilibrée ✓\n\n🎯 QUESTION DE VALIDATION:\nCombien de temps faut-il pour atteindre 400 ppm?\n\nDonnées:\n- Volume salle: 300 m³\n- Débit HVAC: 150 m³/h\n- Renouvellement complet: ?\n\nRéponse: 2-3 heures\n\n👉 Appuyez sur [E] pour valider",
+            "code": "VALIDATED",
+            "debriefing": {
+              "title": "Mission R1 accomplie!",
+              "explanation": "En synchronisant les valves A et B, vous avez évité un déséquilibre de pression. Dans les systèmes pressurisés, ouvrir une seule valve créerait soit une surpression (dommages) soit une dépression (implosion). C'est le même principe pour les sas de stations spatiales!",
+              "didYouKnow": "90% de notre temps est passé en intérieur. Une bonne qualité d'air améliore les performances scolaires (+15%), la productivité (+20%) et la santé générale. Aérez votre chambre 10 min/jour minimum!",
+              "realWorld": "Les bâtiments intelligents utilisent désormais des capteurs CO₂ pour ajuster automatiquement la ventilation. Cela économise 30% d'énergie tout en gardant un air sain.",
+              "unlocked": "🚪 Sortie vers Lab Filtration déverrouillée"
+            }
+          },
+          "tooltip": "✅ Panneau de Validation\n🔒 Accès: Analyst uniquement\n💡 Vérifiez que tout est stabilisé!\n🔗 Prérequis: Valves synchronisées",
+          "miniGame": "co2graph"
+        },
+        {
+          "id": "doorR1",
+          "type": "door",
+          "name": "🚪 Sortie vers Salle de Ventilation",
+          "x": 13,
+          "y": 5,
+          "open": false,
+          "lockedBy": ["R1_complete"]
+        }
+      ],
+      "puzzles": [
+        {
+          "id": "step1_readPanel",
+          "type": "infoSplit",
+          "sourcePanel": "panelData",
+          "targetConsole": "panelData",
+          "codeFormat": "NNNN",
+          "soloNote": true
+        },
+        {
+          "id": "step2_enterCode",
+          "type": "infoSplit",
+          "sourcePanel": "panelData",
+          "targetConsole": "consoleR1",
+          "codeFormat": "NNNN",
+          "soloNote": true,
+          "requires": ["step1_readPanel"]
+        },
+        {
+          "id": "step3_switches",
+          "type": "multiSwitch",
+          "ids": ["swA", "swB"],
+          "simultaneous": true,
+          "playersRequired": 2,
+          "windowMs": 3000,
+          "distanceGate": { "minTiles": 3 },
+          "debugSolo": { "latched": true, "latchMs": 5000 },
+          "requires": ["step2_enterCode"]
+        },
+        {
+          "id": "step4_confirm",
+          "type": "infoSplit",
+          "sourcePanel": "confirmPanel",
+          "targetConsole": "confirmPanel",
+          "codeFormat": "CONFIRM",
+          "soloNote": true,
+          "requires": ["step3_switches"]
+        }
+      ],
+      "successCondition": "step1_readPanel.success && step2_enterCode.success && step3_switches.success && step4_confirm.success",
+      "outputs": {
+        "keys": ["K1"],
+        "codePart": "3"
+      },
+      "pedagogy": {
+        "title": "🫁 Comprendre le CO₂ et les Seuils d'Alerte",
+        "lines": [
+          "💨 LE CO₂ (DIOXYDE DE CARBONE):",
+          "Le CO₂ est un gaz incolore et inodore produit par la respiration humaine.",
+          "En espace clos, sa concentration augmente rapidement sans ventilation.",
+          "",
+          "📊 SEUILS DE RÉFÉRENCE:",
+          "• 400 ppm: Air extérieur (référence naturelle)",
+          "• 600-800 ppm: Bon niveau pour intérieur",
+          "• 1000 ppm: SEUIL D'ALERTE - Ventilation requise",
+          "• 1500+ ppm: Niveau critique - Risques pour la santé",
+          "",
+          "🧠 IMPACTS SUR LA SANTÉ:",
+          "• 1000-1500 ppm: Fatigue, maux de tête légers",
+          "• 1500-2000 ppm: Baisse concentration (-60%)",
+          "• 2000+ ppm: Somnolence, malaise",
+          "",
+          "💡 POURQUOI C'EST IMPORTANT:",
+          "On passe 90% de notre temps en intérieur!",
+          "L'air intérieur est souvent 5x plus pollué que l'extérieur.",
+          "Une bonne ventilation améliore les performances cognitives de 60%.",
+          "",
+          "🏫 APPLICATIONS RÉELLES:",
+          "• Écoles: Meilleurs résultats scolaires avec bon air",
+          "• Bureaux: Productivité accrue",
+          "• Maisons: Santé et bien-être"
+        ],
+        "quiz": {
+          "q": "🎯 À partir de quel niveau de CO₂ doit-on déclencher une alerte de ventilation?",
+          "choices": ["400 ppm (air extérieur)", "800 ppm (bon niveau)", "1000 ppm (seuil critique)", "1500 ppm (danger)"],
+          "correctIndex": 2
+        },
+        "analystContext": "🎓 En tant qu'Analyst, vous avez identifié le seuil critique à partir des données capteurs et communiqué l'information vitale à votre équipe!"
+      },
+      "hint": "💡 INDICE: Le seuil affiché sur le panneau CO₂ aide à former le code d'activation!"
+    },
+    {
+      "id": "R2",
+      "name": "Ventilation Room",
+      "grid": { "cols": 12, "rows": 8 },
+      "spawn": { "x": 6, "y": 6 },
+      "objects": [
+        {
+          "id": "valveA",
+          "type": "valve",
+          "name": "Valve A",
+          "x": 3,
+          "y": 4,
+          "state": "closed",
+          "roleLock": "Operator",
+          "cooldownMs": 500,
+          "tooltip": "Valve A - Operator only",
+          "miniGame": "timing"
+        },
+        {
+          "id": "valveB",
+          "type": "valve",
+          "name": "Valve B",
+          "x": 5,
+          "y": 4,
+          "state": "closed",
+          "roleLock": "Operator",
+          "cooldownMs": 500,
+          "tooltip": "Valve B - Operator only",
+          "miniGame": "timing"
+        },
+        {
+          "id": "valveC",
+          "type": "valve",
+          "name": "Valve C",
+          "x": 7,
+          "y": 4,
+          "state": "closed",
+          "roleLock": "Operator",
+          "cooldownMs": 500,
+          "tooltip": "Valve C - Operator only",
+          "miniGame": "timing"
+        }
+      ],
+      "puzzles": [
+        {
+          "id": "multiValve_R2",
+          "type": "multiValve",
+          "ids": ["valveA", "valveB", "valveC"],
+          "simultaneous": true,
+          "playersRequired": 3,
+          "windowMs": 3000,
+          "distanceGate": { "minTiles": 3 },
+          "debugSolo": { "latched": true, "latchMs": 5000 }
+        }
+      ],
+      "successCondition": "multiValve_R2.success",
+      "outputs": {
+        "keys": ["K2"],
+        "codePart": "4"
+      },
+      "pedagogy": {
+        "title": "Ventilation System Activation",
+        "lines": [
+          "Proper ventilation involves controlling air flow through various valves.",
+          "Opening the correct valves simultaneously can activate the system."
+        ],
+        "quiz": {
+          "q": "How many valves need to be opened simultaneously to activate the ventilation system?",
+          "choices": ["2", "3", "4", "5"],
+          "correctIndex": 1
+        },
+        "operatorContext": "As an Operator, you coordinated the opening of the valves to activate the ventilation system."
+      },
+      "hint": "Check the correct sequence and timing for the valves."
+    },
+    {
+      "id": "R3",
+      "name": "Filtration Room",
+      "grid": { "cols": 12, "rows": 8 },
+      "spawn": { "x": 6, "y": 6 },
+      "objects": [
+        {
+          "id": "filterA",
+          "type": "switch",
+          "name": "HEPA Filter A",
+          "x": 3,
+          "y": 3,
+          "state": "off",
+          "roleLock": "Tech",
+          "cooldownMs": 300,
+          "tooltip": "HEPA Filter A - Tech only"
+        },
+        {
+          "id": "filterB",
+          "type": "switch",
+          "name": "Carbon Filter B",
+          "x": 6,
+          "y": 3,
+          "state": "off",
+          "roleLock": "Tech",
+          "cooldownMs": 300,
+          "tooltip": "Carbon Filter B - Tech only"
+        },
+        {
+          "id": "filterC",
+          "type": "switch",
+          "name": "UV Filter C",
+          "x": 9,
+          "y": 3,
+          "state": "off",
+          "roleLock": "Tech",
+          "cooldownMs": 300,
+          "tooltip": "UV Filter C - Tech only"
+        },
+        {
+          "id": "sequencePanel",
+          "type": "panel",
+          "name": "Filter Sequence Panel",
+          "x": 3,
+          "y": 6,
+          "roleLock": "Analyst",
+          "panel": {
+            "title": "Filter Activation Sequence",
+            "text": "CRITICAL: Filters must be activated in correct order:\n1. HEPA (Particulate removal)\n2. Carbon (VOC absorption)\n3. UV (Microbial sterilization)\n\nIncorrect sequence may damage equipment.",
+            "code": "ACB"
+          },
+          "tooltip": "Filter Sequence Panel - Analyst only"
+        },
+        {
+          "id": "airQualityMonitor",
+          "type": "console",
+          "name": "Air Quality Monitor",
+          "x": 9,
+          "y": 6,
+          "console": {
+            "accept": "code3",
+            "validFormatRegex": "^[A-Z]{3}$",
+            "correctCode": "ACB"
+          },
+          "roleLock": "Operator",
+          "cooldownMs": 250,
+          "tooltip": "Air Quality Monitor - Operator only"
+        },
+        {
+          "id": "doorR3",
+          "type": "door",
+          "name": "Exit Door",
+          "x": 11,
+          "y": 6,
+          "open": false,
+          "lockedBy": ["R3_complete"]
+        }
+      ],
+      "puzzles": [
+        {
+          "id": "sequence_R3",
+          "type": "sequence",
+          "order": ["filterA", "filterB", "filterC"],
+          "resetOnError": true,
+          "lockMs": 3000,
+          "windowMs": 5000
+        },
+        {
+          "id": "infoSplit_R3",
+          "type": "infoSplit",
+          "sourcePanel": "sequencePanel",
+          "targetConsole": "airQualityMonitor",
+          "codeFormat": "AAA",
+          "soloNote": true
+        }
+      ],
+      "successCondition": "sequence_R3.success && airQualityMonitor.correct",
+      "outputs": {
+        "keys": ["K3"],
+        "codePart": "7"
+      },
+      "pedagogy": {
+        "title": "Multi-Stage Air Filtration",
+        "lines": [
+          "Modern air purification uses multiple filter stages:",
+          "HEPA filters capture 99.97% of particles ≥0.3μm (dust, pollen, bacteria).",
+          "Activated carbon filters absorb VOCs and odors.",
+          "UV-C light (254nm) inactivates viruses and bacteria.",
+          "Correct sequence order prevents filter saturation and maximizes efficiency."
+        ],
+        "quiz": {
+          "q": "What percentage of particles does a HEPA filter capture?",
+          "choices": ["95%", "99%", "99.97%", "100%"],
+          "correctIndex": 2
+        },
+        "techContext": "As a Tech, you activated the multi-stage filtration system in the correct sequence."
+      },
+      "hint": "Read the sequence panel carefully. The order matters for filter efficiency."
+    },
+    {
+      "id": "EXIT",
+      "name": "Emergency Exit",
+      "grid": { "cols": 12, "rows": 8 },
+      "spawn": { "x": 6, "y": 6 },
+      "objects": [
+        {
+          "id": "finalDoor",
+          "type": "door",
+          "name": "Emergency Exit Door",
+          "x": 6,
+          "y": 2,
+          "open": false,
+          "lockedBy": ["finalCode"]
+        },
+        {
+          "id": "exitPanel",
+          "type": "panel",
+          "name": "Exit Instructions",
+          "x": 3,
+          "y": 5,
+          "roleLock": "Analyst",
+          "panel": {
+            "title": "Emergency Exit Protocol",
+            "text": "EVACUATION CODE REQUIRED\n\nCombine all code parts collected from previous rooms.\nFormat: XXXX (4 digits)\n\nCode parts obtained:\nR1: [Part 1]\nR2: [Part 2]\nR3: [Part 3]",
+            "code": "info"
+          },
+          "tooltip": "Exit Instructions - Analyst only"
+        },
+        {
+          "id": "exitConsole",
+          "type": "console",
+          "name": "Exit Console",
+          "x": 9,
+          "y": 5,
+          "console": {
+            "accept": "finalCode",
+            "validFormatRegex": "^[0-9]{4}$",
+            "correctCode": "7347"
+          },
+          "roleLock": "Operator",
+          "cooldownMs": 250,
+          "tooltip": "Exit Console - Enter evacuation code"
+        },
+        {
+          "id": "airQualityDisplay",
+          "type": "panel",
+          "name": "Final Air Quality Report",
+          "x": 6,
+          "y": 7,
+          "panel": {
+            "title": "Mission Success",
+            "text": "✓ CO₂ levels normalized: 450 ppm\n✓ Ventilation system: ACTIVE\n✓ Filtration system: OPERATIONAL\n✓ Air quality: EXCELLENT\n\nYou have successfully restored indoor air quality!",
+            "code": "success"
+          },
+          "tooltip": "Air Quality Report"
+        }
+      ],
+      "puzzles": [
+        {
+          "id": "finalCode_puzzle",
+          "type": "infoSplit",
+          "sourcePanel": "exitPanel",
+          "targetConsole": "exitConsole",
+          "codeFormat": "NNNN",
+          "soloNote": true
+        }
+      ],
+      "successCondition": "exitConsole.correct",
+      "outputs": {
+        "victory": true
+      },
+      "pedagogy": {
+        "title": "Indoor Air Quality - Mission Complete",
+        "lines": [
+          "Congratulations! You've learned the fundamentals of indoor air quality management:",
+          "• CO₂ monitoring and threshold alerts (1000 ppm)",
+          "• Mechanical ventilation systems and airflow control",
+          "• Multi-stage air filtration (HEPA, Carbon, UV)",
+          "• Importance of proper maintenance and monitoring",
+          "",
+          "Real-world impact:",
+          "• Better air quality improves cognitive performance by 60%",
+          "• Reduces respiratory illnesses and allergies",
+          "• Essential for schools, offices, and homes",
+          "",
+          "Remember: Fresh air is not a luxury, it's a necessity!"
+        ],
+        "quiz": {
+          "q": "What is the main benefit of good indoor air quality?",
+          "choices": [
+            "Lower energy costs",
+            "Better health and cognitive performance",
+            "Prettier rooms",
+            "Louder ventilation"
+          ],
+          "correctIndex": 1
+        },
+        "allRolesContext": "As a team, you successfully restored indoor air quality through collaboration and problem-solving!"
+      },
+      "hint": "Combine the code parts from R1 (3), R2 (4), and R3 (7) with the initial digit 7."
+    }
+  ]
+}

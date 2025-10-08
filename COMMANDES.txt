@@ -1,0 +1,78 @@
+===========================================
+BREATHE LINE - COMMANDES ESSENTIELLES
+===========================================
+
+📌 INSTALLATION (1 FOIS)
+-----------------------
+cd "c:\Users\Saint\Documents\Workshopp 2k25\final"
+pnpm install
+
+⏱️ Temps: 2-3 minutes
+
+
+📌 DÉMARRER LE JEU
+-----------------------
+pnpm dev
+
+Puis ouvrir: http://localhost:3000
+
+
+📌 TEST MULTIJOUEUR (2 JOUEURS)
+-----------------------
+1. Ouvrir http://localhost:3000
+2. Entrer nom "Alice"
+3. Cliquer "Mode Multijoueur Local"
+4. Cliquer "Créer une partie"
+5. Noter le CODE (ex: ZXTQ)
+
+6. NOUVEL ONGLET: Ctrl+Shift+D
+7. Entrer nom "Bob"
+8. Cliquer "Mode Multijoueur Local"
+9. Cliquer "Rejoindre"
+10. Entrer CODE: ZXTQ
+11. Bob clique "Prêt"
+12. Alice clique "Démarrer"
+
+✅ LE JEU COMMENCE EN MULTIJOUEUR!
+
+
+📌 ARRÊTER LE SERVEUR
+-----------------------
+Ctrl+C dans le terminal
+
+
+📌 SI ERREUR "Module not found"
+-----------------------
+1. Ctrl+C (arrêter serveur)
+2. pnpm install
+3. pnpm dev
+
+
+📌 STRUCTURE FICHIERS IMPORTANTS
+-----------------------
+app/page.tsx → Logique principale du jeu
+lib/local-multiplayer.ts → Système multijoueur
+components/LobbyScreen.tsx → UI lobby
+public/game/breathe-line.json → Scénario 4 salles
+
+
+📌 DOCUMENTATION
+-----------------------
+DEMARRAGE_RAPIDE.md → Guide complet (ce fichier)
+SYNTHESE_AVANCEMENT.md → État du projet (75% → 100%)
+ANALYSE_EXPERIENCE_MULTI.md → Q&A détaillée
+
+
+📌 MODE DEBUG (EN JEU)
+-----------------------
++ → Activer debug
+R → Changer de rôle
+1-4 → Téléportation salles (R1, R2, R3, EXIT)
+
+
+===========================================
+🎉 JEU 100% FONCTIONNEL ET TESTABLE!
+===========================================
+
+Prochaine étape: Tester puis créer livrables workshop
+(Dossier PDF + Poster A3 + PPT)
