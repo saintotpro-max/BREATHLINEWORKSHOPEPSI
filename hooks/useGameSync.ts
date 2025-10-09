@@ -326,7 +326,23 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
             break
 
           case "console":
-            console.log("[v0] Console opened:", objectId)
+            console.log("[v0] Console interaction:", objectId)
+            
+            // Si la console a lastInput (code entré ou validé par mini-jeu), valider le puzzle
+            if (obj.lastInput && currentRoom) {
+              currentRoom.puzzles.forEach((puzzle: Puzzle) => {
+                if (puzzle.type === "infoSplit" && puzzle.targetConsole === objectId) {
+                  offlineStateRef.current = updatePuzzleState(
+                    puzzle,
+                    { type: "consoleSubmit", objectId, timestamp },
+                    offlineStateRef.current,
+                    playersRef.current,
+                    true
+                  )
+                  console.log("[v0] Console puzzle validated:", puzzle.id)
+                }
+              })
+            }
             break
 
           case "door":
