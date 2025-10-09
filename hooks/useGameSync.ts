@@ -377,7 +377,12 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
             break
         }
 
-        setSnapshot({ ...offlineStateRef.current, roomId })
+        // Force new reference for puzzles to trigger React re-render
+        setSnapshot({ 
+          ...offlineStateRef.current, 
+          roomId,
+          puzzles: { ...offlineStateRef.current.puzzles }
+        })
       }
     },
     [mode, gameDefinition, currentRoomId, userId, roomId, transitionToRoom],

@@ -800,8 +800,6 @@ export default function Page() {
             console.log("[v0] Console completed with code:", obj.console.correctCode)
             // Appeler sendInteract pour valider le puzzle infoSplit
             sendInteract(selectedMiniGame.objectId, debugMode)
-            // Forcer recalcul du compteur
-            setPuzzleUpdateTrigger(prev => prev + 1)
           }
         }
       }
@@ -1640,8 +1638,6 @@ Bonne chance."
           onClose={() => {
             // Valider le puzzle panelRead quand le panel est fermé
             sendInteract(selectedPanel, debugMode)
-            // Forcer recalcul du compteur
-            setPuzzleUpdateTrigger(prev => prev + 1)
             setSelectedPanel(null)
           }}
           canRead={role === "Analyst"}
