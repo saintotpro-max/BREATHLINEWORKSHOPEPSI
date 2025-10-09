@@ -1414,6 +1414,8 @@ Bonne chance."
             // Afficher seulement le nombre de hints utilisés
             return allHints.slice(0, snapshot.hintsUsed)
           })()}
+          puzzlesSolved={puzzlesSolvedCount}
+          totalPuzzles={currentRoom?.puzzles?.length || 0}
         />
 
         <DebriefingManager
