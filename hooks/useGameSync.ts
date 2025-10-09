@@ -304,21 +304,28 @@ export function useGameSync({ mode, roomId, userId, displayName }: UseGameSyncOp
             break
 
           case "panel":
-            console.log("[v0] Panel opened:", objectId)
+            console.log("[v0] Panel interaction:", objectId)
             
             // Mettre à jour les puzzles infoSplit où ce panel est la source
             if (currentRoom) {
+              console.log("[v0] Checking puzzles for panel:", currentRoom.puzzles?.length)
               currentRoom.puzzles.forEach((puzzle: Puzzle) => {
-                if (puzzle.type === "infoSplit" && puzzle.sourcePanel === objectId) {
-                  // Si targetConsole === sourcePanel, c'est juste une lecture
-                  if (puzzle.targetConsole === objectId) {
-                    offlineStateRef.current = updatePuzzleState(
-                      puzzle,
-                      { type: "panelRead", objectId, timestamp },
-                      offlineStateRef.current,
-                      playersRef.current,
-                      true
-                    )
+                if (puzzle.type === "infoSplit") {
+                  const infoPuzzle = puzzle as any
+                  console.log("[v0] Puzzle:", infoPuzzle.id, infoPuzzle.type, infoPuzzle.sourcePanel, infoPuzzle.targetConsole)
+                  if (infoPuzzle.sourcePanel === objectId) {
+                    // Si targetConsole === sourcePanel, c'est juste une lecture
+                    if (infoPuzzle.targetConsole === objectId) {
+                      console.log("[v0] Validating panelRead puzzle:", puzzle.id)
+                      offlineStateRef.current = updatePuzzleState(
+                        puzzle,
+                        { type: "panelRead", objectId, timestamp },
+                        offlineStateRef.current,
+                        playersRef.current,
+                        true
+                      )
+                      console.log("[v0] Puzzle state after:", offlineStateRef.current.puzzles[puzzle.id])
+                    }
                   }
                 }
               })

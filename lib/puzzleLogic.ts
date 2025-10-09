@@ -227,7 +227,10 @@ export function updatePuzzleState(
   players: Map<string, PlayerState>,
   debugSolo: boolean,
 ): GameSnapshot {
-  const newSnapshot = { ...snapshot }
+  const newSnapshot = { 
+    ...snapshot,
+    puzzles: { ...snapshot.puzzles }
+  }
   const puzzleState = { ...(newSnapshot.puzzles[puzzle.id] || {}) }
 
   switch (puzzle.type) {
