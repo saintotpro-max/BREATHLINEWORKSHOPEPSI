@@ -761,15 +761,47 @@ export default function Page() {
                 led.label = "ON"
               }
             }
+            
+            // FIX: Pour switch/valve avec mini-jeu, vérifier si puzzle multiSwitch/multiValve complété
+            const room = gameData?.rooms?.find((r: any) => r.id === snapshot.roomId)
+            const multiPuzzle = room?.puzzles?.find((p: any) => 
+              (p.type === "multiSwitch" || p.type === "multiValve") && 
+              (p.ids?.includes(selectedMiniGame.objectId) || p.objects?.includes(selectedMiniGame.objectId))
+            )
+            
+            if (multiPuzzle) {
+              // Vérifier si TOUS les objets du puzzle sont maintenant "on"
+              const objectIds = multiPuzzle.ids || multiPuzzle.objects || []
+              const allObjectsOn = objectIds.every((objId: string) => {
+                const o = snapshot.objects[objId]
+                return o && o.state === "on"
+              })
+              
+              if (allObjectsOn) {
+                snapshot.puzzles[multiPuzzle.id] = {
+                  ...snapshot.puzzles[multiPuzzle.id],
+                  success: true,
+                  solvedAt: Date.now()
+                }
+                console.log("[v0] Multi-switch/valve puzzle solved:", multiPuzzle.id)
+              }
+            }
           }
           
-          // Appeler sendInteract pour déclencher updatePuzzleState
+          // FIX: Pour console, définir lastInput avec le code correct pour valider le puzzle
+          if (obj.type === "console" && obj.console) {
+            obj.lastInput = obj.console.correctCode
+            obj.completed = true
+            console.log("[v0] Console completed with code:", obj.console.correctCode)
+          }
+          
+          // Appeler sendInteract pour déclencher updatePuzzleState qui va valider le puzzle
           sendInteract(selectedMiniGame.objectId, debugMode)
         }
       }
       setSelectedMiniGame(null)
     },
-    [selectedMiniGame, sendInteract, debugMode, snapshot],
+    [selectedMiniGame, sendInteract, debugMode, snapshot, gameData],
   )
 
   useEffect(() => {
@@ -1599,7 +1631,11 @@ Bonne chance."
         <PanelModal
           panelId={selectedPanel}
           gameData={gameData}
-          onClose={() => setSelectedPanel(null)}
+          onClose={() => {
+            // Valider le puzzle panelRead quand le panel est fermé
+            sendInteract(selectedPanel, debugMode)
+            setSelectedPanel(null)
+          }}
           canRead={role === "Analyst"}
         />
       )}
