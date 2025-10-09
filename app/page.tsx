@@ -124,6 +124,7 @@ export default function Page() {
   }>>([])
   const [drLemaireMessage, setDrLemaireMessage] = useState<string | null>(null)
   const [puzzlesSolvedCount, setPuzzlesSolvedCount] = useState(0)
+  const [puzzleUpdateTrigger, setPuzzleUpdateTrigger] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [transitionFrom, setTransitionFrom] = useState("")
   const [transitionTo, setTransitionTo] = useState("")
@@ -784,12 +785,12 @@ export default function Page() {
                   solvedAt: Date.now()
                 }
                 console.log("[v0] Multi-switch/valve puzzle solved:", multiPuzzle.id)
+                // Forcer recalcul du compteur
+                setPuzzleUpdateTrigger(prev => prev + 1)
               }
             }
             
             // NE PAS appeler sendInteract (évite toggle qui remet à "off")
-            // Forcer un re-render en modifiant un state local
-            setPlayerScore(prev => prev) // Force update sans changer la valeur
           }
           
           // FIX: Pour console, définir lastInput avec le code correct pour valider le puzzle
@@ -912,7 +913,7 @@ export default function Page() {
     const allPuzzles = gameData.rooms.flatMap((r: any) => r.puzzles || [])
     const solvedCount = allPuzzles.filter((p: any) => snapshot.puzzles[p.id]?.success).length
     setPuzzlesSolvedCount(solvedCount)
-  }, [snapshot.puzzles, gameData, phase])
+  }, [snapshot.puzzles, gameData, phase, puzzleUpdateTrigger])
 
   useEffect(() => {
     if (phase !== "playing" || !gameData) return
