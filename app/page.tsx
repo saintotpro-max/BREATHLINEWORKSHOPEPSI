@@ -786,6 +786,10 @@ export default function Page() {
                 console.log("[v0] Multi-switch/valve puzzle solved:", multiPuzzle.id)
               }
             }
+            
+            // NE PAS appeler sendInteract (évite toggle qui remet à "off")
+            // Forcer un re-render en modifiant un state local
+            setPlayerScore(prev => prev) // Force update sans changer la valeur
           }
           
           // FIX: Pour console, définir lastInput avec le code correct pour valider le puzzle
@@ -793,10 +797,9 @@ export default function Page() {
             obj.lastInput = obj.console.correctCode
             obj.completed = true
             console.log("[v0] Console completed with code:", obj.console.correctCode)
+            // Appeler sendInteract pour valider le puzzle infoSplit
+            sendInteract(selectedMiniGame.objectId, debugMode)
           }
-          
-          // Appeler sendInteract pour déclencher updatePuzzleState qui va valider le puzzle
-          sendInteract(selectedMiniGame.objectId, debugMode)
         }
       }
       setSelectedMiniGame(null)
