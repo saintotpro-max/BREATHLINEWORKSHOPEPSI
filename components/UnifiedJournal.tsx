@@ -24,6 +24,8 @@ interface UnifiedJournalProps {
     summary: string
   }>
   hintsFound: string[]
+  puzzlesSolved: number
+  totalPuzzles: number
 }
 
 export function UnifiedJournal({
@@ -34,7 +36,9 @@ export function UnifiedJournal({
   briefing,
   currentObjectives,
   recentDebriefings,
-  hintsFound
+  hintsFound,
+  puzzlesSolved,
+  totalPuzzles
 }: UnifiedJournalProps) {
   const [activeTab, setActiveTab] = useState<"briefing" | "objectives" | "progression" | "debriefings" | "hints">("objectives")
 
@@ -128,9 +132,17 @@ export function UnifiedJournal({
             <div className="space-y-4">
               {/* Barre globale */}
               <div className="bg-white/80 rounded-lg p-6 shadow-inner border-2 border-amber-200">
-                <h3 className="text-xl font-bold text-amber-900 mb-4 font-serif">
+                <h3 className="text-xl font-bold text-amber-900 mb-2 font-serif">
                   📊 Progression Globale
                 </h3>
+                
+                {/* Compteur énigmes */}
+                <div className="mb-3">
+                  <p className="text-lg font-bold text-amber-800">
+                    ✅ <span className="text-green-600">{puzzlesSolved}</span> / {totalPuzzles} énigmes résolues
+                  </p>
+                </div>
+                
                 <div className="mb-2">
                   <div className="bg-amber-200 rounded-full h-8 overflow-hidden shadow-inner">
                     <div
